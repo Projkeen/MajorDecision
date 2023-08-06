@@ -4,25 +4,34 @@
 @*<h1 class="text-center">Make Decision</h1>*@
 <h1 class="text-center">New Question</h1>
 
-<div class="row text-center">
-    <div class="col-6">
-        <form asp-controller="Decision" asp-action="Index" method="post">
-            <div class="mb-3">
-                <input asp-for="Question" type="text" class="" />
-                <button type="submit" class="btn btn-primary">Try!</button>
-            </div>
-            <div class="mb-3">
-               
-            </div>
-        </form>
-    </div>
 
-    <div class="text-center">       
+
+
+<form asp-controller="Decision" asp-action="Index" method="post" class="row text-center">
+    <div class="form-floating py-2 col-12">
+        <input asp-for="Question" type="text" class="text-center" />
+        <button type="submit" class="btn btn-primary">Try!</button>
+    </div>
+    <h1 class="text-center">
+        @ViewBag.message
+    </h1>
+</form>
+@*<div class="row text-center">
+       <div class="col-6">
+       <form asp-controller="Decision" asp-action="Index" method="post">
+       <div class="mb-3">
+       <input asp-for="Question" type="text" class="" />
+       <button type="submit" class="btn btn-primary">Try!</button>
+       </div>
+       <div class="mb-3">
+       </div>
+       </form>
+       </div>
+       <div class="text-center">
        @ViewBag.message
-    </div>
-</div>
-<p>
-  
-</p>
-
+       </div>
+       </div>
+       <p>
+       </p>*@
+       
 
