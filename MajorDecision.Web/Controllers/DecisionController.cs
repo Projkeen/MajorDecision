@@ -2,6 +2,7 @@
 using MajorDecision.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Net;
 
 namespace MajorDecision.Web.Controllers
@@ -27,35 +28,55 @@ namespace MajorDecision.Web.Controllers
         [HttpPost]
         public IActionResult Index(Decision decision)
         {
-            Random random = new Random();
-            int rnd=random.Next(100);
-            decision.Answer = decision.Question.Length.ToString();
-            int ans=int.Parse(decision.Answer);
-            if ((ans % 2 == 0) && (rnd % 2 == 0))
+            if (ModelState.IsValid)
             {
-                decision.Answer = "yes";
-            }
-            else if((ans % 2 != 0) && (rnd % 2 != 0))
-            {
-                decision.Answer = "yes";
-            }
-            else
-            {
-                decision.Answer = "no";
-            }       
+                Random random = new Random();
+                int rnd = random.Next(100);
+                decision.Answer = decision.Question.Length.ToString();
+                int ans = int.Parse(decision.Answer);
+                if ((ans % 2 == 0) && (rnd % 2 == 0))
+                {
+                    decision.Answer = "yes";
+                }
+                else if ((ans % 2 != 0) && (rnd % 2 != 0))
+                {
+                    decision.Answer = "yes";
+                }
+                else
+                {
+                    decision.Answer = "no";
+                }
 
-            _db.Decisions.Add(decision);
-            _db.SaveChanges();
+                _db.Decisions.Add(decision);
+                _db.SaveChanges();
+                ViewBag.message = decision.Answer;
+                return View();
+                //return RedirectToAction(nameof(Answer));
+            }
             //return RedirectToAction("Index","Decision");
-            return RedirectToAction(nameof(Answer));
+            //return decision.Answer;
+            return View();
         }
 
-        public IActionResult Answer()
+        public IActionResult AnswersHistory()
         {
+            //ViewBag.Id = id;
+            //Decision? decisionFromDb = _db.Decisions.FirstOrDefault(u=>u.Id==id);
             List<Decision> decisions = _db.Decisions.ToList();
-             
+            //List<Decision> decisions = _db.Decisions.Single(i => i.Id == 0);
+            //Decision? decisionFromDb = _db.Decisions.OrderBy(u=>u.Id).Last();
+            //return View(decisionFromDb);
+            //List<Decision> answer = _db.Decisions.SingleOrDefault();
+
             return View(decisions);
         }
+
+        //public IActionResult Answer()
+        //{
+        //    //List<Decision> decisions = _db.Decisions.ToList();
+        //    //Decision? decisionFromDb = _db.Decisions.Find(id);
+        //    return View();
+        //}
 
 
     }
