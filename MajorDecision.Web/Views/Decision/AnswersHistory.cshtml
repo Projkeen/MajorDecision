@@ -1,11 +1,14 @@
 ﻿@model List<Decision>
 
 
-@foreach (var obj in Model)
-{
-    <p>
-        @obj.Question
-        @obj.Answer
-    </p>
+@{
+    var i = 1;
 }
-<p>
+<table>
+    <tr><td>№</td><td>Question</td><td>Answer</td></tr>
+    @foreach (var item in Model)
+    {
+        <tr><td>@i</td><td>@item.Question</td><td>@item.Answer</td></tr>
+        { i++; }
+    }
+</table>
