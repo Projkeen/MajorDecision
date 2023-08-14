@@ -4,11 +4,27 @@
 @{
     var i = 1;
 }
-<table>
-    <tr><td>№</td><td>Question</td><td>Answer</td></tr>
-    @foreach (var item in Model)
-    {
-        <tr><td>@i</td><td>@item.Question</td><td>@item.Answer</td></tr>
-        { i++; }
-    }
-</table>
+<form asp action="DeleteHistory" method="post">
+    <input type="submit" value="Delete selected" />
+    <table>
+        <tr>
+            <td>Select</td>
+            <td>№</td>
+            <td>Question</td>
+            <td>Answer</td>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <input type="checkbox" name="decisionIdsToDelete" id="decisionIdsToDelete" value="@item.Id" />
+                </td>
+                <td>@i</td>
+                <td>@item.Question</td>
+                <td>@item.Answer</td>
+            </tr>
+            { i++; }
+        }
+    </table>
+   
+</form>

@@ -1,6 +1,7 @@
 ﻿using MajorDecision.Web.Data;
 using MajorDecision.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.Linq;
 using System.Net;
@@ -76,6 +77,28 @@ namespace MajorDecision.Web.Controllers
         //    //List<Decision> decisions = _db.Decisions.ToList();
         //    //Decision? decisionFromDb = _db.Decisions.Find(id);
         //    return View();
+        //}
+
+        [HttpPost]
+        public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
+        {
+            List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
+            foreach(Decision decision in decisions)
+            {
+                _db.Decisions.Remove(decision);                
+            }
+            _db.SaveChanges();
+            return RedirectToAction("AnswersHistory");
+        }
+            
+       
+       
+
+        //public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
+        //{
+        //    _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList().ForEach(y => _db.Decisions.Remove(y));
+        //    _db.SaveChanges();
+        //    return RedirectToAction("AnswersHistory");
         //}
 
 
