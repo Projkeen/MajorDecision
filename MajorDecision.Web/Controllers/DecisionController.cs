@@ -50,7 +50,9 @@ namespace MajorDecision.Web.Controllers
 
                 _db.Decisions.Add(decision);
                 _db.SaveChanges();
+                ModelState.Clear();
                 ViewBag.message = decision.Answer;
+                
                 return View();
                 //return RedirectToAction(nameof(Answer));
             }
@@ -103,4 +105,5 @@ namespace MajorDecision.Web.Controllers
 
 
     }
+        
 }
