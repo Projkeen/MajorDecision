@@ -12,6 +12,7 @@
             <td>№</td>
             <td>Question</td>
             <td>Answer</td>
+            <td>Date</td>
         </tr>
         @foreach (var item in Model)
         {
@@ -22,6 +23,7 @@
                 <td>@i</td>
                 <td>@item.Question</td>
                 <td>@item.Answer</td>
+                <td>@item.DateOfQuestion</td>
             </tr>
             { i++; }
         }

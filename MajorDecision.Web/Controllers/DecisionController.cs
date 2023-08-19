@@ -11,10 +11,10 @@ namespace MajorDecision.Web.Controllers
     public class DecisionController : Controller
     {
         private readonly ApplicationDbContext _db;
-        
+
         public DecisionController(ApplicationDbContext db)
         {
-                _db=db;
+            _db = db;
         }
 
         //private static List<Decision> answer = new List<Decision>();
@@ -22,8 +22,8 @@ namespace MajorDecision.Web.Controllers
         {
             //List<Decision> decisions = _db.Decisions.ToList();
             //return View(decisions);
-            return View(); 
-            
+            return View();
+
         }
 
         [HttpPost]
@@ -48,11 +48,13 @@ namespace MajorDecision.Web.Controllers
                     decision.Answer = "no";
                 }
 
+                decision.DateOfQuestion = DateTime.Now;
+
                 _db.Decisions.Add(decision);
                 _db.SaveChanges();
                 ModelState.Clear();
                 ViewBag.message = decision.Answer;
-                
+
                 return View();
                 //return RedirectToAction(nameof(Answer));
             }
@@ -85,16 +87,16 @@ namespace MajorDecision.Web.Controllers
         public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
         {
             List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
-            foreach(Decision decision in decisions)
+            foreach (Decision decision in decisions)
             {
-                _db.Decisions.Remove(decision);                
+                _db.Decisions.Remove(decision);
             }
             _db.SaveChanges();
             return RedirectToAction("AnswersHistory");
         }
-            
-       
-       
+
+
+
 
         //public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
         //{
@@ -105,5 +107,5 @@ namespace MajorDecision.Web.Controllers
 
 
     }
-        
+
 }
