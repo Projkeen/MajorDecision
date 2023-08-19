@@ -1,8 +1,10 @@
 ﻿using MajorDecision.Web.Data;
 using MajorDecision.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 
@@ -63,17 +65,25 @@ namespace MajorDecision.Web.Controllers
             return View();
         }
 
-        public IActionResult AnswersHistory()
+        
+        public IActionResult AnswersHistory(string searchString)
         {
             //ViewBag.Id = id;
             //Decision? decisionFromDb = _db.Decisions.FirstOrDefault(u=>u.Id==id);
-            List<Decision> decisions = _db.Decisions.ToList();
+            //List<Decision> decisions = _db.Decisions.ToList();
             //List<Decision> decisions = _db.Decisions.Single(i => i.Id == 0);
-            //Decision? decisionFromDb = _db.Decisions.OrderBy(u=>u.Id).Last();
             //return View(decisionFromDb);
             //List<Decision> answer = _db.Decisions.SingleOrDefault();
+            //ViewData["Filter"] = searchString;
 
-            return View(decisions);
+            var decisions = from d in _db.Decisions select d;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString));
+                
+            }          
+
+            return View(decisions.ToList());
         }
 
         //public IActionResult Answer()

@@ -1,10 +1,71 @@
-﻿@model List<Decision>
-
+﻿@model IEnumerable<Decision>
+@{
+    //ViewData["Title"] = "AnswersHistory";
+}
 
 @{
     var i = 1;
 }
-<form asp action="DeleteHistory" method="post">
+<div>
+    <div class="row pt-4">
+        <div class="col-5">
+            <h2 class="text" style="margin-left:150px">Logs</h2>
+        </div>
+        <div class="col-4">
+            <form asp-action="AnswersHistory" method="get">
+                <div class="w-100 btn-group" role="group">
+                    <input type="text" class="form-control" name="searchString" placeholder="Search in history" autocomplete="off" @*value="@ViewData["Filter"]"*@ />
+                    <input type="submit" value="Search" class="btn btn-secondary" style="width:50%" />
+                    <a asp-action="AnswersHistory" class="btn btn-info" style="width:50%">Show all</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<br />
+
+@if (Model.Count() > 0)
+{
+
+    <form asp-action="DeleteHistory" method="post">
+        <input type="submit" value="Delete selected" class="btn btn-secondary btn-lg" />
+
+
+        <table class="table table-bordered table-hover table-striped" style="text-align:center" width="100%">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>№</th>
+                    <th>Question</th>
+                    <th>Answer</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody style="font-size:larger">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="decisionIdsToDelete" id="decisionIdsToDelete" value="@item.Id" />
+                        </td>
+                        <td>@i</td>
+                        <td>@item.Question</td>
+                        <td>@item.Answer</td>
+                        <td>@item.DateOfQuestion</td>
+                    </tr>
+                    { i++; }
+                }
+            </tbody>
+        </table>
+    </form>
+}
+else
+{
+    <p class="text-center"><b>No questions</b></p>
+}
+
+
+@*<form asp action="DeleteHistory" method="post">
     <input type="submit" value="Delete selected" />
     <table>
         <tr>
@@ -28,5 +89,5 @@
             { i++; }
         }
     </table>
-   
-</form>
+
+</form>*@
