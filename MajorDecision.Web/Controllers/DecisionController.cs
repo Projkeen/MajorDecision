@@ -3,20 +3,27 @@ using MajorDecision.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Routing.Constraints;
+using MajorDecision.Web.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace MajorDecision.Web.Controllers
 {
     public class DecisionController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ApplicationDbContext _db;        
 
         public DecisionController(ApplicationDbContext db)
         {
             _db = db;
+
         }
 
         //private static List<Decision> answer = new List<Decision>();
@@ -29,43 +36,70 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(Decision decision)
+        public IActionResult Index(Decision decision, string lucky)
         {
-            if (ModelState.IsValid)
+            if (lucky == "answer")
             {
-                Random random = new Random();
-                int rnd = random.Next(100);
-                decision.Answer = decision.Question.Length.ToString();
-                int ans = int.Parse(decision.Answer);
-                if ((ans % 2 == 0) && (rnd % 2 == 0))
+                if (ModelState.IsValid)
                 {
-                    decision.Answer = "yes";
-                }
-                else if ((ans % 2 != 0) && (rnd % 2 != 0))
-                {
-                    decision.Answer = "yes";
-                }
-                else
-                {
-                    decision.Answer = "no";
+                    //Decision decision = new Decision();
+                    string answersPath = $"{Environment.CurrentDirectory}\\Answers.json";
+                    string[] Answers;
+                    Random random = new Random();
+
+                    var file = System.IO.File.ReadAllText(answersPath);
+                    Answers = JsonConvert.DeserializeObject<string[]>(file);
+                    int index = random.Next(Answers.Length);
+                    decision.Answer = Answers[index];
+                    decision.DateOfQuestion = DateTime.Now;
+                    _db.Decisions.Add(decision);
+                    _db.SaveChanges();
+                    ModelState.Clear();
+                    ViewBag.message = decision.Answer;
+                    return View();
                 }
 
-                decision.DateOfQuestion = DateTime.Now;
-
-                _db.Decisions.Add(decision);
-                _db.SaveChanges();
-                ModelState.Clear();
-                ViewBag.message = decision.Answer;
-
-                return View();
-                //return RedirectToAction(nameof(Answer));
             }
+            else
+            {
+                if (decision.Question!=null)
+                {
+                    Random random = new Random();
+                    int rnd = random.Next(100);
+                    decision.Answer = decision.Question.Length.ToString();
+                    int ans = int.Parse(decision.Answer);
+                    if ((ans % 2 == 0) && (rnd % 2 == 0))
+                    {
+                        decision.Answer = "yes";
+                    }
+                    else if ((ans % 2 != 0) && (rnd % 2 != 0))
+                    {
+                        decision.Answer = "yes";
+                    }
+                    else
+                    {
+                        decision.Answer = "no";
+                    }
+
+                    decision.DateOfQuestion = DateTime.Now;
+
+                    _db.Decisions.Add(decision);
+                    _db.SaveChanges();
+                    ModelState.Clear();
+                    ViewBag.message = decision.Answer;
+
+                    return View();
+                    //return RedirectToAction(nameof(Answer));
+                }
+                
+            }            
+
             //return RedirectToAction("Index","Decision");
             //return decision.Answer;
             return View();
         }
 
-        
+
         public IActionResult AnswersHistory(string searchString)
         {
             //ViewBag.Id = id;
@@ -80,8 +114,8 @@ namespace MajorDecision.Web.Controllers
             if (!String.IsNullOrEmpty(searchString))
             {
                 decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString));
-                
-            }          
+
+            }
 
             return View(decisions.ToList());
         }
