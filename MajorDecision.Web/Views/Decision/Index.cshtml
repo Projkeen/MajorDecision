@@ -7,10 +7,10 @@
 
 <form asp-controller="Decision" asp-action="Index" method="post" class="row text-center">
     <div class="form-floating py-2 col-12">
-        <input asp-for="Question" type="text" class="text-center" />       
-        <button type="submit" class="btn btn-primary">Try!</button>
-       
-       
+        <input asp-for="Question" type="text" class="text-center" />
+        <button type="submit" class="btn btn-primary" onclick="DisplayLoading()">Try!</button>
+
+
     </div>
     <div>
         @using (Html.BeginForm("Index", "Decision", FormMethod.Get))
@@ -19,9 +19,18 @@
             @Html.RadioButton("lucky", "answer", false)
         }
     </div>
-    <h1 class="text-center">
-        @ViewBag.message
-    </h1>
+    @*<p id="loading" style="height:50px; width:50px; display:none; "> <img src="~/images/5zdc.gif" style="height:100px;width: justify-content:center"></p>*@
+   @* <div id="loading" class="justify-content-center" style="display:none">
+        <img src="~/images/5zdc.gif" style="height:100px;width:100px" class="justify-content-center">
+    </div>*@
+    <div class="text-center">
+        <div class="modal-dialog" id="loading" style="display:none">
+            <img src="~/images/5zdc.gif" style="height:100px;width:100px">           
+        </div>
+        <h1>
+            @ViewBag.message
+        </h1>       
+    </div>
 </form>
 @*<div class="row text-center">
        <div class="col-6">
@@ -40,7 +49,7 @@
        </div>
        <p>
        </p>*@
-       
+
 
 @*@section Scripts{
     <script src="~/js/textbox.js"></script>
@@ -52,6 +61,15 @@
             }
         };
     </script>  *@
-    
 
-    
+@section Scripts{
+    <script>
+        DisplayLoading = function () {
+            //$('#loading').css('display', 'inline-block');
+            $('#loading').show();
+        }
+    </script>
+    }
+
+
+

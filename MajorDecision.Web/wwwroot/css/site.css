@@ -20,3 +20,9 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+#loading {    
+    width: 100px;
+    height: 100px;
+    background: url('../images/5zdc.gif');    
+}
