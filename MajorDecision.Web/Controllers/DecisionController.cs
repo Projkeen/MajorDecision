@@ -139,6 +139,17 @@ namespace MajorDecision.Web.Controllers
             return RedirectToAction("AnswersHistory");
         }
 
+        [HttpPost]
+        public IActionResult DeleteAllHistory()       
+        {
+            
+            foreach (var item in _db.Decisions)
+            {
+                _db.Decisions.Remove(item);
+            }
+            _db.SaveChanges();
+            return RedirectToAction("AnswersHistory");
+        }
 
 
 

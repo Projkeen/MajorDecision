@@ -20,6 +20,11 @@
                 </div>
             </form>
         </div>
+        <div class="col-4">
+            <form asp-action="DeleteAllHistory" method="post">
+                <input type="submit" value="Delete All" class="btn btn-secondary btn-lg"/>
+            </form>
+        </div>
     </div>
 </div>
 <br />
@@ -28,8 +33,7 @@
 {
 
     <form asp-action="DeleteHistory" method="post">
-        <input type="submit" value="Delete selected" class="btn btn-secondary btn-lg" />
-
+        <input type="submit" value="Delete selected" class="btn btn-secondary btn-lg" />       
 
         <table class="table table-bordered table-hover table-striped" style="text-align:center" width="100%">
             <thead>
