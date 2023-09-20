@@ -1,6 +1,12 @@
 ﻿@using MajorDecision.Web.Models;
 @model Decision
 
+@if (User.Identity.IsAuthenticated)
+{
+    string username = User.Identity.Name;
+    <p>Welcome @username !</p>
+}
+
 @*<h1 class="text-center">Make Decision</h1>*@
 <h1 class="text-center">New Question</h1>
 
@@ -10,7 +16,7 @@
         <input asp-for="Question" type="text" class="text-center" />
         @*<div id="loading" style="height:32px; width:32px; display:none; background: url('images\8ball.gif') top left no-repeat"></div>*@
         <button type="submit" class="btn btn-primary" onclick="DisplayLoading()">Try!</button>
-       
+
 
     </div>
     <div>

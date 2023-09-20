@@ -11,11 +11,12 @@ using System.Linq;
 using System.Net;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Routing.Constraints;
-using MajorDecision.Web.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MajorDecision.Web.Controllers
 {
+    //[Authorize]
     public class DecisionController : Controller
     {
         private readonly ApplicationDbContext _db;        

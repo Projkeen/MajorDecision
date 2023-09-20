@@ -1,0 +1,45 @@
+﻿@model MajorDecision.Web.Models.Authentication.Login
+@{
+    //Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+</head>
+<body>
+    <form asp-action="Login" method="post">
+        <h1>Login form</h1>
+        <div class="container">
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label">Username</label>
+                <input type="text" class="form-control" asp-for="Username" />
+                <div class="msg">
+                    <span asp-validation-for="Username"></span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input type="password" class="form-control" asp-for="Password" />
+                <div class="msg">
+                    <span asp-validation-for="Password"></span>
+                </div>
+            </div>
+            @if (TempData["msg"] != null)
+            {
+                <div class="msg">
+                    <span>@TempData=["msg"]</span>
+                </div>
+            }
+            <button type="submit" class="btn btn-primary">Sign In</button>
+            <a href="/Authentication/Registration" class="btn btn-secondary">Sign up</a>
+
+        </div>
+
+
+    </form>
+</body>
+</html>

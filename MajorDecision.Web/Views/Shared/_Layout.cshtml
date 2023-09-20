@@ -27,7 +27,23 @@
                         </li>*@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Decision" asp-action="Index">Decision</a>
-                        </li>
+                        </li>                       
+                    </ul>
+                </div>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav flex">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item justify-content-end">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Logout">Sign Out</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item justify-content-end">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Login">Sign In or Sign Up</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

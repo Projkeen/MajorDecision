@@ -1,0 +1,62 @@
+﻿@model MajorDecision.Web.Models.Authentication.Registration
+@{
+    //Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Registration</title>
+</head>
+<body>
+    <div class="container">
+        <div class="md-6">
+            <form asp-action="Registration" method="post">
+                <h2>Registration</h2>
+                <div class="form-label">
+                    <label class="form-label">FirstName</label>
+                    <input type="text" class="form-control" asp-for="FirstName" />
+                    <span class="text-danger" asp-validation-for="FirstName"></span>
+                </div>
+
+                <div class="form-label">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" asp-for="Username" />
+                    <span class="text-danger" asp-validation-for="Username"></span>
+                </div>
+
+                <div class="form-label">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" asp-for="Email" />
+                    <span class="text-danger" asp-validation-for="Email"></span>
+                </div>
+
+                <div class="form-label">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" asp-for="Password" />
+                    <span class="text-danger" asp-validation-for="Password"></span>
+                </div>
+
+                <div class="form-label">
+                    <label class="form-label">Password Confirm</label>
+                    <input type="password" class="form-control" asp-for="PasswordConfirm" />
+                    <span class="text-danger" asp-validation-for="PasswordConfirm"></span>
+                </div>
+
+                @if (TempData["msg"] != null)
+                {
+                    <div class="form-group">
+                        @TempData["msg"]
+                    </div>
+                }
+                <button type="submit" class="btn btn-primary">Sign Up</button>
+                <a class="btn btn-secondary" href="/Authentication/Login">Sign In</a>
+
+            </form>
+        </div>
+
+    </div>
+</body>
+</html>
