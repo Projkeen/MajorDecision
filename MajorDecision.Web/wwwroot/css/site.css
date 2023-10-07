@@ -1,28 +1,62 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-image: url('../images/11083-1200x600.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-#loading {    
+#loading {
     width: 100px;
     height: 100px;
-    background: url('../images/8ball.gif') top left no-repeat;    
+    background: url('../images/8ball.gif') top left no-repeat;
 }
+
+.question-box {
+    text-align: center;
+    position: relative;
+    width: 350px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+    .question-box input {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        border: none;
+        background: #00ffff;
+        border-radius: 50px;
+        font-size: 30px;
+        padding: 0 60px 0 20px;
+        outline: none;
+    }
+
+    .question-box .question-btn {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background: #1ab4d0;
+        border: none;
+        border-radius: 50px;
+        margin-top: 5px;
+        transform: translateX(-110%);
+    }

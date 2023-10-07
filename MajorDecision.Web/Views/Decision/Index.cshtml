@@ -11,11 +11,11 @@
 <h1 class="text-center">New Question</h1>
 
 
-<form asp-controller="Decision" asp-action="Index" method="post" class="row text-center">
-    <div class="form-floating py-2 col-12">
-        <input asp-for="Question" type="text" class="text-center" />
+<form asp-controller="Decision" asp-action="Index" method="post" class="text-center">
+    <div class="question-box">
+        <input asp-for="Question" type="text" placeholder="type a question" class="text-center" />
         @*<div id="loading" style="height:32px; width:32px; display:none; background: url('images\8ball.gif') top left no-repeat"></div>*@
-        <button type="submit" class="btn btn-primary" onclick="DisplayLoading()">Try!</button>
+        <button type="submit" class="question-btn"  onclick="DisplayLoading()">Try!</button>
 
 
     </div>
