@@ -1,18 +1,26 @@
 ﻿@model IEnumerable<Decision>
 @{
-    //ViewData["Title"] = "AnswersHistory";
+    ViewData["Title"] = "AnswersHistory";
 }
 
 @{
     var i = 1;
 }
 <div>
+    @if (TempData["AlertMessage"] != null)
+    {
+        <div class="alert alert-info">
+            @TempData["AlertMessage"]
+        </div>
+    }
+
     <div class="row pt-4">
         <div class="col-5">
             <h2 class="text" style="margin-left:150px">Logs</h2>
         </div>
+
         <div class="col-4">
-            <form asp-action="AnswersHistory" method="get">
+            <form asp-action="SearchHistory" method="get">
                 <div class="w-100 btn-group" role="group">
                     <input type="text" class="form-control" name="searchString" placeholder="Search in history" autocomplete="off" @*value="@ViewData["Filter"]"*@ />
                     <input type="submit" value="Search" class="btn btn-secondary" style="width:50%" />
@@ -22,11 +30,11 @@
         </div>
         <div class="col-4">
             <form asp-action="DeleteAllHistory" method="post">
-                @if(Model.Count()>0)
+                @if (Model.Count() > 0)
                 {
                     <button type="submit" class="btn btn-secondary btn-lg" onclick="return confirm('⚠ Are you sure?')">Delete all</button>
                 }
-                
+
             </form>
         </div>
     </div>
@@ -37,7 +45,7 @@
 {
 
     <form asp-action="DeleteHistory" method="post">
-        <input type="submit" value="Delete selected" class="btn btn-secondary btn-lg" />       
+        <input type="submit" value="Delete selected" class="btn btn-secondary btn-lg" />
 
         <table class="answerstable" style="text-align:center" width="100%">
             <thead>

@@ -39,10 +39,12 @@ namespace MajorDecision.Web.Controllers
         [HttpPost]
         public IActionResult Index(Decision decision, string lucky)
         {
+
+            var user = HttpContext.User;
             //var userId = _db.UserLogins.Find(ClaimTypes.NameIdentifier).UserId;
             if (lucky == "answer")
             {
-                if (ModelState.IsValid)
+                if (decision.Question != null)
                 {
                     //Decision decision = new Decision();
                     string answersPath = $"{Environment.CurrentDirectory}\\Answers.json";
@@ -54,11 +56,23 @@ namespace MajorDecision.Web.Controllers
                     int index = random.Next(Answers.Length);
                     decision.Answer = Answers[index];
                     decision.DateOfQuestion = DateTime.Now;
-                    _db.Decisions.Add(decision);
-                    _db.SaveChanges();
-                    ModelState.Clear();
-                    ViewBag.message = decision.Answer;
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        decision.ApplicationUserId = user.FindFirst(ClaimTypes.NameIdentifier).Value;
+                        _db.Decisions.Add(decision);
+                        _db.SaveChanges();
+                        ModelState.Clear();
+                        ViewBag.message = decision.Answer;
+                    }
+                    else
+                    {
+                        _db.Decisions.Add(decision);
+                        _db.SaveChanges();
+                        ModelState.Clear();
+                        ViewBag.message = decision.Answer;
+                    }
                     return View();
+
                 }
 
             }
@@ -84,13 +98,24 @@ namespace MajorDecision.Web.Controllers
                     }
 
                     decision.DateOfQuestion = DateTime.Now;
-
-                    _db.Decisions.Add(decision);
-                    _db.SaveChanges();
-                    ModelState.Clear();
-                    ViewBag.message = decision.Answer;
-
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        decision.ApplicationUserId = user.FindFirst(ClaimTypes.NameIdentifier).Value;
+                        _db.Decisions.Add(decision);
+                        _db.SaveChanges();
+                        ModelState.Clear();
+                        ViewBag.message = decision.Answer;
+                    }
+                    else
+                    {
+                        _db.Decisions.Add(decision);
+                        _db.SaveChanges();
+                        ModelState.Clear();
+                        ViewBag.message = decision.Answer;
+                    }
                     return View();
+
+
                     //return RedirectToAction(nameof(Answer));
                 }
 
@@ -102,8 +127,8 @@ namespace MajorDecision.Web.Controllers
         }
 
 
-        public IActionResult AnswersHistory(string searchString)
-        {
+        public  IActionResult AnswersHistory()
+        {            
             //ViewBag.Id = id;
             //Decision? decisionFromDb = _db.Decisions.FirstOrDefault(u=>u.Id==id);
             //List<Decision> decisions = _db.Decisions.ToList();
@@ -111,15 +136,30 @@ namespace MajorDecision.Web.Controllers
             //return View(decisionFromDb);
             //List<Decision> answer = _db.Decisions.SingleOrDefault();
             //ViewData["Filter"] = searchString;
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = HttpContext.User;
+               
+                var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
+                return View(decisions.ToList());
+            }
+            else
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+               
+        }
 
-            var decisions = from d in _db.Decisions select d;
+        public IActionResult SearchHistory(string searchString)
+        {
+            var user = HttpContext.User;
+            var decisions = from d in _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value) select d;
             if (!String.IsNullOrEmpty(searchString))
             {
                 decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString));
 
             }
-
-            return View(decisions.ToList());
+            return View("AnswersHistory", decisions.ToList());
         }
 
         //public IActionResult Answer()
@@ -132,23 +172,34 @@ namespace MajorDecision.Web.Controllers
         [HttpPost]
         public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
         {
-            List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
-            foreach (Decision decision in decisions)
+            if (decisionIdsToDelete == null)
             {
-                _db.Decisions.Remove(decision);
+                TempData["AlertMessage"] = "you must select";
+                return RedirectToAction("AnswersHistory");
             }
-            _db.SaveChanges();
-            return RedirectToAction("AnswersHistory");
+            else
+            {
+                List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
+                foreach (Decision decision in decisions)
+                {
+                    _db.Decisions.Remove(decision);
+                }
+                _db.SaveChanges();
+                return RedirectToAction("AnswersHistory");
+            }
+            
         }
 
         [HttpPost]
         public IActionResult DeleteAllHistory()
         {
-
-            foreach (var item in _db.Decisions)
-            {
-                _db.Decisions.Remove(item);
-            }
+            var user = HttpContext.User;
+            //foreach (var item in _db.Decisions)
+            //{
+            //    _db.Decisions.Remove(item);
+            //}
+            var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
+            _db.Decisions.RemoveRange(decisions);
             _db.SaveChanges();
             return RedirectToAction("AnswersHistory");
         }
