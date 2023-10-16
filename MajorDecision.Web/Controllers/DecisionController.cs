@@ -13,18 +13,18 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace MajorDecision.Web.Controllers
 {
     //[Authorize]
     public class DecisionController : Controller
     {
-        private readonly ApplicationDbContext _db;        
+        private readonly ApplicationDbContext _db;
 
         public DecisionController(ApplicationDbContext db)
         {
             _db = db;
-
         }
 
         //private static List<Decision> answer = new List<Decision>();
@@ -39,6 +39,7 @@ namespace MajorDecision.Web.Controllers
         [HttpPost]
         public IActionResult Index(Decision decision, string lucky)
         {
+            //var userId = _db.UserLogins.Find(ClaimTypes.NameIdentifier).UserId;
             if (lucky == "answer")
             {
                 if (ModelState.IsValid)
@@ -63,7 +64,7 @@ namespace MajorDecision.Web.Controllers
             }
             else
             {
-                if (decision.Question!=null)
+                if (decision.Question != null)
                 {
                     Random random = new Random();
                     int rnd = random.Next(100);
@@ -92,8 +93,8 @@ namespace MajorDecision.Web.Controllers
                     return View();
                     //return RedirectToAction(nameof(Answer));
                 }
-                
-            }            
+
+            }
 
             //return RedirectToAction("Index","Decision");
             //return decision.Answer;
@@ -141,9 +142,9 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteAllHistory()       
+        public IActionResult DeleteAllHistory()
         {
-            
+
             foreach (var item in _db.Decisions)
             {
                 _db.Decisions.Remove(item);
