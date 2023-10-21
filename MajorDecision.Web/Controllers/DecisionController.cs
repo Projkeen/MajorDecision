@@ -170,19 +170,22 @@ namespace MajorDecision.Web.Controllers
 
         [HttpPost]
         public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
-        {
-
-            List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
-            foreach (Decision decision in decisions)
+        {            
+            if (decisionIdsToDelete.Count()!= 0)
             {
-                _db.Decisions.Remove(decision);
-                _db.SaveChanges();
+                List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
+                foreach (Decision decision in decisions)
+
+                {
+                    _db.Decisions.Remove(decision);
+                    _db.SaveChanges();
+                }
                 TempData["AlertMessage"] = "Deleted successfully";
                 return RedirectToAction("AnswersHistory");
+
             }
             TempData["AlertMessage"] = "You must select";
             return RedirectToAction("AnswersHistory");
-
 
         }
 
