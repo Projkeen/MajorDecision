@@ -127,8 +127,8 @@ namespace MajorDecision.Web.Controllers
         }
 
 
-        public  IActionResult AnswersHistory()
-        {            
+        public IActionResult AnswersHistory()
+        {
             //ViewBag.Id = id;
             //Decision? decisionFromDb = _db.Decisions.FirstOrDefault(u=>u.Id==id);
             //List<Decision> decisions = _db.Decisions.ToList();
@@ -139,7 +139,6 @@ namespace MajorDecision.Web.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var user = HttpContext.User;
-               
                 var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
                 return View(decisions.ToList());
             }
@@ -147,7 +146,7 @@ namespace MajorDecision.Web.Controllers
             {
                 return RedirectToAction("Login", "Authentication");
             }
-               
+
         }
 
         public IActionResult SearchHistory(string searchString)
@@ -156,7 +155,7 @@ namespace MajorDecision.Web.Controllers
             var decisions = from d in _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value) select d;
             if (!String.IsNullOrEmpty(searchString))
             {
-                decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString));
+                decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString().Contains(searchString));
 
             }
             return View("AnswersHistory", decisions.ToList());
@@ -172,22 +171,19 @@ namespace MajorDecision.Web.Controllers
         [HttpPost]
         public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
         {
-            if (decisionIdsToDelete == null)
+
+            List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
+            foreach (Decision decision in decisions)
             {
-                TempData["AlertMessage"] = "you must select";
-                return RedirectToAction("AnswersHistory");
-            }
-            else
-            {
-                List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
-                foreach (Decision decision in decisions)
-                {
-                    _db.Decisions.Remove(decision);
-                }
+                _db.Decisions.Remove(decision);
                 _db.SaveChanges();
+                TempData["AlertMessage"] = "Deleted successfully";
                 return RedirectToAction("AnswersHistory");
             }
-            
+            TempData["AlertMessage"] = "You must select";
+            return RedirectToAction("AnswersHistory");
+
+
         }
 
         [HttpPost]

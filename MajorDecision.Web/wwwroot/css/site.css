@@ -63,6 +63,10 @@ body {
 
 
 .answerstable {
-    background-color: rgba(120, 0,0, 0.5);
-    border: dotted;
+    background-color: rgba(0, 0,0, 0.1);
+    border: 2px solid grey;
+}
+
+th, td {
+    border: 1px solid grey;    
 }

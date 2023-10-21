@@ -2,3 +2,21 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
+
+window.setTimeout(function () {
+    $(".alert").fadeTo(500, 0).slideUp(500, function () {
+        $(this).remove();
+    });
+},5555);
+
+function confirmDelete(isDeleteClicked) {
+    var deleteSpan = 'deleteSpan';
+    var confirmDeleteSpan = 'confirmDeleteSpan';
+    if (isDeleteClicked) {
+        $('#' + deleteSpan).hide();
+        $('#' + confirmDeleteSpan).show();
+    } else {
+        $('#' + deleteSpan).show();
+        $('#' + confirmDeleteSpan).hide();
+    }
+}
