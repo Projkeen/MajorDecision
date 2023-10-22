@@ -95,5 +95,29 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             status.Message = "User has registered successfully";
             return status;
         }
+
+        public async Task<Status>ChangePasswordAsync(ChangePassword model, string username)
+        {
+            var status = new Status();
+            var user=await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                status.Message = "User not found";
+                status.StatusCode = 0;
+                return status;
+            }
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (result.Succeeded)
+            {
+                status.Message = "Password has updated successfully";
+                status.StatusCode = 1;
+            }
+            else
+            {
+                status.Message = "Some error occured";
+                status.StatusCode = 0;
+            }
+            return status;
+        }
     }
 }

@@ -6,6 +6,16 @@
     string username = User.Identity.Name;
     <p>Welcome @username !</p>
 }
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["msg"]
+        <button type="button" class="btn-close" data-dismiss="alert" style="float:right">
+            <span>&times;</span>
+        </button>
+
+    </div>
+}
 
 @*<h1 class="text-center">Make Decision</h1>*@
 <h1 class="text-center">New Question</h1>

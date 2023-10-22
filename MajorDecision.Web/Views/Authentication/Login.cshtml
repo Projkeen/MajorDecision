@@ -12,6 +12,16 @@
 </head>
 <body>
     <form asp-action="Login" method="post">
+        @if (TempData["msg"] != null)
+        {
+            <div class="alert alert-info" style="text-align:center">
+                @TempData["msg"]
+                <button type="button" class="btn-close" data-dismiss="alert" style="float:right">
+                    <span>&times;</span>
+                </button>
+
+            </div>
+        }
         <h1>Login form</h1>
         <div class="container">
             <div class="mb-3">
@@ -27,15 +37,9 @@
                 <div class="msg">
                     <span asp-validation-for="Password"></span>
                 </div>
-            </div>
-            @if (TempData["msg"] != null)
-            {
-                <div class="msg">
-                    <span>@TempData=["msg"]</span>
-                </div>
-            }
-            <button type="submit" class="btn btn-primary">Sign In</button>
-            <a href="/Authentication/Registration" class="btn btn-secondary">Sign up</a>
+            </div>           
+            <button type="submit" class="btn btn-primary">Log In</button>
+            <a href="/Authentication/Registration" class="btn btn-secondary">Registration</a>
 
         </div>
 

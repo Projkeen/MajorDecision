@@ -14,6 +14,16 @@
     <div class="container">
         <div class="md-6">
             <form asp-action="Registration" method="post">
+                @if (TempData["msg"] != null)
+                {
+                    <div class="alert alert-info" style="text-align:center">
+                        @TempData["msg"]
+                        <button type="button" class="btn-close" data-dismiss="alert" style="float:right">
+                            <span>&times;</span>
+                        </button>
+
+                    </div>
+                }
                 <h2>Registration</h2>
                 <div class="form-label">
                     <label class="form-label">FirstName</label>
@@ -44,15 +54,9 @@
                     <input type="password" class="form-control" asp-for="PasswordConfirm" />
                     <span class="text-danger" asp-validation-for="PasswordConfirm"></span>
                 </div>
-
-                @if (TempData["msg"] != null)
-                {
-                    <div class="form-group">
-                        @TempData["msg"]
-                    </div>
-                }
-                <button type="submit" class="btn btn-primary">Sign Up</button>
-                <a class="btn btn-secondary" href="/Authentication/Login">Sign In</a>
+                
+                <button type="submit" class="btn btn-primary">Confirm</button>
+                <a class="btn btn-secondary" href="/Authentication/Login">Log In</a>
 
             </form>
         </div>

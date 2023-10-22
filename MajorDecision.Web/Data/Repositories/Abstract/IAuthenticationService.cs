@@ -7,5 +7,6 @@ namespace MajorDecision.Web.Data.Repositories.Abstract
         Task<Status> LoginAsync(Login model);
         Task<Status> RegistrationAsync(Registration model);
         Task LogoutAsync();
+        Task<Status>ChangePasswordAsync(ChangePassword model, string username);
     }
 }

@@ -26,7 +26,7 @@ namespace MajorDecision.Web.Controllers
 
             var result = await _service.RegistrationAsync(model);
             TempData["msg"] = result.Message;
-            return RedirectToAction(nameof(Registration));
+            return RedirectToAction(nameof(Login));
         }
         public IActionResult Login()
         {
@@ -58,6 +58,32 @@ namespace MajorDecision.Web.Controllers
             await _service.LogoutAsync();
             return RedirectToAction("Index", "Decision");
         }
+
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [Authorize, HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePassword model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+            var result = await _service.ChangePasswordAsync(model, User.Identity.Name);
+            if (result.StatusCode == 1)
+            {
+                TempData["msg"] = result.Message;
+                return RedirectToAction("Index", "Decision");
+            }
+            else
+            {
+                TempData["msg"] = result.Message;
+                return RedirectToAction(nameof(ChangePassword));
+            }
+            
+        }
+
     }
 }
 

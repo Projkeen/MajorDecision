@@ -30,12 +30,21 @@
                         </li>                       
                     </ul>
                 </div>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end" style="margin-right:60px">
                     <ul class="navbar-nav flex">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item justify-content-end">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Logout">Sign Out</a>
+                            <li class="nav-item dropdown justify-content-end">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">@User.Identity.Name</a>
+                                <ul class="dropdown-menu">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" asp-area="" asp-controller="Authentication" asp-action="ChangePassword">Change Password</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" asp-area="" asp-controller="Authentication" asp-action="Logout">Sign Out</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                </ul>
                             </li>
                         }
                         else
@@ -43,6 +52,7 @@
                             <li class="nav-item justify-content-end">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Login">Sign In or Sign Up</a>
                             </li>
+                           @* <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Logout">Sign Out</a>*@
                         }
                     </ul>
                 </div>
@@ -56,7 +66,7 @@
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
+        <div class="text-center" @*"container"*@>
             &copy; 2023 - MajorDecision.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
