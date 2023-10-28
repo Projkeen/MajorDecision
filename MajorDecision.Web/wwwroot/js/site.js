@@ -20,3 +20,18 @@ function confirmDelete(isDeleteClicked) {
         $('#' + confirmDeleteSpan).hide();
     }
 }
+
+var audio = document.getElementById('layout-audio');
+var playPauseBtn = document.getElementById('playPauseBtn');
+var count = 0;
+function playPause() {
+    if (count == 0) {
+        count = 1;
+        audio.play();
+        /*playPauseBtn.innerHTML = "Pause &#9208";*/
+    } else {
+        count = 0;
+        audio.pause();
+        /*playPauseBtn.innerHTML = "Play &#9658";*/
+    }
+}

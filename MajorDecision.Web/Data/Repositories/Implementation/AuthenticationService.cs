@@ -68,7 +68,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             if (userExists != null)
             {
                 status.StatusCode = 0;
-                status.Message = "User already exists";
+                status.Message = "User already created, create new username";
                 return status;
             }
 
@@ -107,14 +107,21 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 return status;
             }
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-            if (result.Succeeded)
+            if (result.Succeeded && model.NewPassword==model.PasswordConfirm)
             {
                 status.Message = "Password has updated successfully";
                 status.StatusCode = 1;
+
+                if (model.NewPassword != model.PasswordConfirm)
+                {
+                    status.Message = "New password and confirm password doesn't match";
+                    status.StatusCode = 0;
+                }
             }
+          
             else
             {
-                status.Message = "Some error occured";
+                status.Message = "Old password is wrong";
                 status.StatusCode = 0;
             }
             return status;

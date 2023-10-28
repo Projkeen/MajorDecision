@@ -25,8 +25,17 @@ namespace MajorDecision.Web.Controllers
                 return View(model);
 
             var result = await _service.RegistrationAsync(model);
-            TempData["msg"] = result.Message;
-            return RedirectToAction(nameof(Login));
+            if (result.StatusCode == 1)
+            {
+                TempData["msg"] = result.Message;
+                return RedirectToAction(nameof(Login));
+            }
+            else
+            {
+                TempData["msg"] = result.Message;
+                return RedirectToAction(nameof(Registration));
+            }
+            
         }
         public IActionResult Login()
         {

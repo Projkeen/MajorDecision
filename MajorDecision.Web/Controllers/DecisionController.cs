@@ -33,13 +33,11 @@ namespace MajorDecision.Web.Controllers
             //List<Decision> decisions = _db.Decisions.ToList();
             //return View(decisions);
             return View();
-
         }
 
         [HttpPost]
         public IActionResult Index(Decision decision, string lucky)
         {
-
             var user = HttpContext.User;
             //var userId = _db.UserLogins.Find(ClaimTypes.NameIdentifier).UserId;
             if (lucky == "answer")
@@ -72,9 +70,7 @@ namespace MajorDecision.Web.Controllers
                         ViewBag.message = decision.Answer;
                     }
                     return View();
-
                 }
-
             }
             else
             {
@@ -114,18 +110,13 @@ namespace MajorDecision.Web.Controllers
                         ViewBag.message = decision.Answer;
                     }
                     return View();
-
-
                     //return RedirectToAction(nameof(Answer));
                 }
-
             }
-
             //return RedirectToAction("Index","Decision");
             //return decision.Answer;
             return View();
         }
-
 
         public IActionResult AnswersHistory()
         {
@@ -144,9 +135,9 @@ namespace MajorDecision.Web.Controllers
             }
             else
             {
+                TempData["msg"] = "You must be loggin in";
                 return RedirectToAction("Login", "Authentication");
             }
-
         }
 
         public IActionResult SearchHistory(string searchString)
@@ -156,7 +147,6 @@ namespace MajorDecision.Web.Controllers
             if (!String.IsNullOrEmpty(searchString))
             {
                 decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString().Contains(searchString));
-
             }
             return View("AnswersHistory", decisions.ToList());
         }
@@ -175,14 +165,12 @@ namespace MajorDecision.Web.Controllers
             {
                 List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
                 foreach (Decision decision in decisions)
-
                 {
                     _db.Decisions.Remove(decision);
                     _db.SaveChanges();
                 }
                 TempData["AlertMessage"] = "Deleted successfully";
                 return RedirectToAction("AnswersHistory");
-
             }
             TempData["AlertMessage"] = "You must select";
             return RedirectToAction("AnswersHistory");
@@ -203,16 +191,11 @@ namespace MajorDecision.Web.Controllers
             return RedirectToAction("AnswersHistory");
         }
 
-
-
         //public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
         //{
         //    _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList().ForEach(y => _db.Decisions.Remove(y));
         //    _db.SaveChanges();
         //    return RedirectToAction("AnswersHistory");
         //}
-
-
     }
-
 }

@@ -9,10 +9,10 @@
 {
     <div class="alert alert-info" style="text-align:center">
         @TempData["AlertMessage"]
-        <button type="button" class="btn-close" data-dismiss="alert" style="float:right">
-            <span>&times;</span>
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
+            @*<span>&times;</span>*@
         </button>
-        
+
     </div>
 }
 <div>
@@ -90,13 +90,13 @@ else
 {
     <p class="text-center">
         <b>No questions</b>
-        <br/>
-        <br/>
+        <br />
+        <br />
         <b>
             <a class="nav-link text-dark" asp-area="" asp-controller="Decision" asp-action="Index">Try again</a>
-        </b>        
-        </p>
-   
+        </b>
+    </p>
+
 }
 
 
