@@ -35,3 +35,15 @@ function playPause() {
         /*playPauseBtn.innerHTML = "Play &#9658";*/
     }
 }
+
+function addProfileImage(isClicked) {
+    var addPhoto = 'addPhoto';
+    var confirm = 'confirm';
+    if (isClicked) {
+        $('#' + addPhoto).hide();
+        $('#' + confirm).show();
+    } else {
+        $('#' + addPhoto).show();
+        $('#' + confirm).hide();
+    }
+}
