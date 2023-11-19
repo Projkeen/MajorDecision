@@ -10,7 +10,6 @@ using System.Security.Claims;
 
 namespace MajorDecision.Web.Controllers
 {
-
     public class ProfileController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -55,7 +54,6 @@ namespace MajorDecision.Web.Controllers
 
         public async Task<IActionResult> UploadImage()
         {
-
             return View();
         }
 
@@ -85,6 +83,48 @@ namespace MajorDecision.Web.Controllers
 
             //var result= _userManager.Users.Add(updateUser);
             return RedirectToAction("ManageProfile");
+        }
+
+        public async Task<IActionResult> EditUser()
+        {
+            //var user = await _userManager.GetUserAsync(User);
+            //var userClaims = await _userManager.GetClaimsAsync(user);
+            //var userRoles = await _userManager.GetRolesAsync(user);
+
+            //var model = new UserViewModel
+            //{
+            //    Id = user.Id,
+            //    FirstName = user.Name,
+            //    Username = user.UserName,
+            //    Email = user.Email,
+            //    Claims = userClaims.Select(c => c.Value).ToList(),
+            //    Roles = userRoles,
+            //};
+            //return PartialView("_EditUserPartialView");
+            //return View("ManageProfile");
+            return View();
+            
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditUser(UserViewModel model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            user.UserName = model.Username;
+            user.Email=model.Email;
+            user.Name = model.FirstName;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["msg"] = "User data has updated";
+                return RedirectToAction("ManageProfile");
+            }
+            else
+            {
+                TempData["msg"] = "Smthg wrong (This username already using or username must be entered)";
+                return RedirectToAction("ManageProfile");
+            }            
         }
     }
 }

@@ -83,7 +83,7 @@ namespace MajorDecision.Web.Controllers
             if (result.StatusCode == 1)
             {
                 TempData["msg"] = result.Message;
-                return RedirectToAction("Index", "Decision");
+                return RedirectToAction("ManageProfile", "Profile");
             }
             else
             {

@@ -117,6 +117,11 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                     status.Message = "New password and confirm password doesn't match";
                     status.StatusCode = 0;
                 }
+                if (model.CurrentPassword == model.NewPassword)
+                {
+                    status.Message = "The old password must not be the same as the new password";
+                    status.StatusCode = 0;
+                }
             }
           
             else
