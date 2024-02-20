@@ -1,6 +1,7 @@
 ﻿using MajorDecision.Web.Data;
 using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Models;
+using MajorDecision.Web.Models.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -44,7 +45,7 @@ namespace MajorDecision.Web.Controllers
                 Username = user.UserName,
                 Email = user.Email,
                 Claims = userClaims.Select(c => c.Value).ToList(),
-                Roles = userRoles,                
+                Roles = userRoles,
             };
 
             ViewData["Photo"] = user.ProfilePicture;
@@ -103,28 +104,39 @@ namespace MajorDecision.Web.Controllers
             //return PartialView("_EditUserPartialView");
             //return View("ManageProfile");
             return View();
-            
+
         }
 
         [HttpPost]
         public async Task<IActionResult> EditUser(UserViewModel model)
         {
             var user = await _userManager.GetUserAsync(User);
-
+            var userExists = await _userManager.FindByNameAsync(model.Username);
             user.UserName = model.Username;
-            user.Email=model.Email;
+            user.Email = model.Email;
             user.Name = model.FirstName;
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
+            if (user.UserName != null && user.Name != null)
             {
+                await _userManager.UpdateAsync(user);
                 TempData["msg"] = "User data has updated";
                 return RedirectToAction("ManageProfile");
-            }
+            }           
             else
             {
                 TempData["msg"] = "Smthg wrong (This username already using or username must be entered)";
                 return RedirectToAction("ManageProfile");
-            }            
+            }
+            //var result = await _userManager.UpdateAsync(user);
+            //if (result.Succeeded)
+            //{
+            //    TempData["msg"] = "User data has updated";
+            //    return RedirectToAction("ManageProfile");
+            //}
+            //else
+            //{
+            //    TempData["msg"] = "Smthg wrong (This username already using or username must be entered)";
+            //    return RedirectToAction("ManageProfile");
+            //}            
         }
     }
 }

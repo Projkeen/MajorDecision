@@ -23,7 +23,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             if (user == null)
             {
                 status.StatusCode = 0;
-                status.Message = "Invalid username";
+                status.Message = "Username is not found";
                 return status;
             }
                         
@@ -80,8 +80,6 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 UserName = model.Username,
                 EmailConfirmed = true,
             };
-
-
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
