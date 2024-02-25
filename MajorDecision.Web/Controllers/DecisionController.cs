@@ -14,17 +14,19 @@ using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace MajorDecision.Web.Controllers
 {
     //[Authorize]
     public class DecisionController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ApplicationDbContext _db;       
 
         public DecisionController(ApplicationDbContext db)
         {
-            _db = db;
+            _db = db;                  
         }
 
         //private static List<Decision> answer = new List<Decision>();
@@ -197,5 +199,34 @@ namespace MajorDecision.Web.Controllers
         //    _db.SaveChanges();
         //    return RedirectToAction("AnswersHistory");
         //}
+
+        [HttpGet]
+        public FileResult Download() //don't show russian letters, and not separate fields in rows
+        {
+            var user = HttpContext.User;
+            string[] dataShows = new string[] { "User, Question, Answer, Date Of Question" };
+            var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
+            string csv = string.Empty;
+            foreach(string dataShow in dataShows)
+            {
+                csv += dataShow + ',';                
+            }
+            csv += "\r\n";
+
+
+            foreach (var decision in decisions)
+            {
+                csv += user.Identity.Name.Replace(",", ";") + ',';
+                csv += decision.Question.Replace(",", ";") + ',';
+                csv += decision.Answer.Replace(",", ";") + ',';
+                csv += decision.DateOfQuestion;
+                csv += "\r\n";
+            }
+            //byte[] bytes = Encoding.ASCII.GetBytes(csv);
+            //byte[] bytes = Encoding.UTF8.GetBytes(csv);
+            byte[] bytes = Encoding.Unicode.GetBytes(csv);
+            return File(bytes, "text/csv", user.Identity.Name+" Answers.csv");
+
+        }
     }
 }
