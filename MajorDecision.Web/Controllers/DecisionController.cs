@@ -16,17 +16,19 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using MajorDecision.Web.Data.Repositories.Abstract;
 
 namespace MajorDecision.Web.Controllers
 {
     //[Authorize]
     public class DecisionController : Controller
     {
-        private readonly ApplicationDbContext _db;       
-
-        public DecisionController(ApplicationDbContext db)
+        private readonly ApplicationDbContext _db;
+        private readonly IDecision? _decision;
+        public DecisionController(IDecision decision, ApplicationDbContext db)
         {
-            _db = db;                  
+            _db = db;
+            _decision = decision;
         }
 
         //private static List<Decision> answer = new List<Decision>();
@@ -38,86 +40,48 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(Decision decision, string lucky)
+        public async Task<IActionResult> IndexAsync(Decision decision, string lucky)
         {
             var user = HttpContext.User;
             //var userId = _db.UserLogins.Find(ClaimTypes.NameIdentifier).UserId;
-            if (lucky == "answer")
+            if (decision.Question != null)
             {
-                if (decision.Question != null)
+                if (lucky == "answer")
                 {
-                    //Decision decision = new Decision();
-                    string answersPath = $"{Environment.CurrentDirectory}\\Answers.json";
-                    string[] Answers;
-                    Random random = new Random();
-
-                    var file = System.IO.File.ReadAllText(answersPath);
-                    Answers = JsonConvert.DeserializeObject<string[]>(file);
-                    int index = random.Next(Answers.Length);
-                    decision.Answer = Answers[index];
-                    decision.DateOfQuestion = DateTime.Now;
-                    if (User.Identity.IsAuthenticated)
-                    {
-                        decision.ApplicationUserId = user.FindFirst(ClaimTypes.NameIdentifier).Value;
-                        _db.Decisions.Add(decision);
-                        _db.SaveChanges();
-                        ModelState.Clear();
-                        ViewBag.message = decision.Answer;
-                    }
-                    else
-                    {
-                        _db.Decisions.Add(decision);
-                        _db.SaveChanges();
-                        ModelState.Clear();
-                        ViewBag.message = decision.Answer;
-                    }
-                    return View();
+                    await _decision.ShowAnswerBySecondMethodAsync(decision);
                 }
+                else
+                {
+                    await _decision.ShowAnswerByFirstMethodAsync(decision);
+                }
+
+                if (User.Identity.IsAuthenticated)
+                {
+                    decision.ApplicationUserId = user.FindFirst(ClaimTypes.NameIdentifier).Value;
+                    _db.Decisions.Add(decision);
+                    _db.SaveChanges();
+                    ModelState.Clear();
+                    ViewBag.message = decision.Answer;
+                }
+                else
+                {
+                    _db.Decisions.Add(decision);
+                    _db.SaveChanges();
+                    ModelState.Clear();
+                    ViewBag.message = decision.Answer;
+                }
+                return View();
             }
             else
             {
-                if (decision.Question != null)
-                {
-                    Random random = new Random();
-                    int rnd = random.Next(100);
-                    decision.Answer = decision.Question.Length.ToString();
-                    int ans = int.Parse(decision.Answer);
-                    if ((ans % 2 == 0) && (rnd % 2 == 0))
-                    {
-                        decision.Answer = "yes";
-                    }
-                    else if ((ans % 2 != 0) && (rnd % 2 != 0))
-                    {
-                        decision.Answer = "yes";
-                    }
-                    else
-                    {
-                        decision.Answer = "no";
-                    }
-
-                    decision.DateOfQuestion = DateTime.Now;
-                    if (User.Identity.IsAuthenticated)
-                    {
-                        decision.ApplicationUserId = user.FindFirst(ClaimTypes.NameIdentifier).Value;
-                        _db.Decisions.Add(decision);
-                        _db.SaveChanges();
-                        ModelState.Clear();
-                        ViewBag.message = decision.Answer;
-                    }
-                    else
-                    {
-                        _db.Decisions.Add(decision);
-                        _db.SaveChanges();
-                        ModelState.Clear();
-                        ViewBag.message = decision.Answer;
-                    }
-                    return View();
-                    //return RedirectToAction(nameof(Answer));
-                }
+                TempData["AlertMessage"] = "You must enter the question";
+                return RedirectToAction("Index", "Decision");
             }
+
+            //return RedirectToAction(nameof(Answer));           
             //return RedirectToAction("Index","Decision");
             //return decision.Answer;
-            return View();
+            //return View();
         }
 
         public IActionResult AnswersHistory()
@@ -162,8 +126,8 @@ namespace MajorDecision.Web.Controllers
 
         [HttpPost]
         public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
-        {            
-            if (decisionIdsToDelete.Count()!= 0)
+        {
+            if (decisionIdsToDelete.Count() != 0)
             {
                 List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
                 foreach (Decision decision in decisions)
@@ -207,9 +171,9 @@ namespace MajorDecision.Web.Controllers
             string[] dataShows = new string[] { "User, Question, Answer, Date Of Question" };
             var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
             string csv = string.Empty;
-            foreach(string dataShow in dataShows)
+            foreach (string dataShow in dataShows)
             {
-                csv += dataShow + ',';                
+                csv += dataShow + ',';
             }
             csv += "\r\n";
 
@@ -225,7 +189,7 @@ namespace MajorDecision.Web.Controllers
             //byte[] bytes = Encoding.ASCII.GetBytes(csv);
             //byte[] bytes = Encoding.UTF8.GetBytes(csv);
             byte[] bytes = Encoding.Unicode.GetBytes(csv);
-            return File(bytes, "text/csv", user.Identity.Name+" Answers.csv");
+            return File(bytes, "text/csv", user.Identity.Name + " Answers.csv");
 
         }
     }

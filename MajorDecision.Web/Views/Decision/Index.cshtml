@@ -1,11 +1,24 @@
 ﻿@using MajorDecision.Web.Models;
 @model Decision
 
+@if (TempData["AlertMessage"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["AlertMessage"]
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
+            @*<span>&times;</span>*@
+        </button>
+
+    </div>
+}
+
 @if (User.Identity.IsAuthenticated)
 {
     string username = User.Identity.Name;
-    <p>Welcome @username !</p>   
+    <p>Welcome @username !</p>      
 }
+
+
 
 @*@if (TempData["msg"] != null)
 {

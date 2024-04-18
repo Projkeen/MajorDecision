@@ -89,10 +89,8 @@ namespace MajorDecision.Web.Controllers
             {
                 TempData["msg"] = result.Message;
                 return RedirectToAction(nameof(ChangePassword));
-            }
-            
+            }            
         }
-
     }
 }
 
