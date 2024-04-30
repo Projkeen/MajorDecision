@@ -43,6 +43,22 @@
                     <span class="text-danger" asp-validation-for="Email"></span>
                 </div>
 
+              @*   <div class="form-label">
+                    <label class="form-label">Permission</label>
+                    <input type="password" class="form-control" style="width:250px" asp-for="SecretPassword" />
+                    <span class="text-danger" asp-validation-for="SecretPassword"></span>
+                </div> *@
+
+                <div class="form-label">
+                    <label class="form-label">Sign Up as:</label>
+                    <select id="addInputFieldForAdminPerm">
+                        <option> User</option>
+                        <option value="Adm"> Admin</option>
+                    </select>
+                    <br />
+                    <input type="password" asp-for="SecretPassword" class="form-control" style="width:250px; display:none" id="additionalInput" ; placeholder="You must enter the secret code" />
+                </div>                
+
                 <div class="form-label">
                     <label class="form-label">Password</label>
                     <input type="password" class="form-control" style="width:250px" asp-for="Password" />
@@ -64,3 +80,15 @@
     </div>
 </body>
 </html>
+<script>
+    const selectElement = document.getElementById("addInputFieldForAdminPerm");
+    const inputField = document.getElementById("additionalInput");
+
+    selectElement.addEventListener("change", (event) => {
+        if (event.target.value === "Adm") {
+            inputField.style.display = "inline-block";
+        } else {
+            inputField.style.display = "none";
+        }
+    });
+</script>

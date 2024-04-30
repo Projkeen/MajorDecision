@@ -2,6 +2,7 @@
 using MajorDecision.Web.Models;
 using MajorDecision.Web.Models.Authentication;
 using Microsoft.AspNetCore.Identity;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace MajorDecision.Web.Data.Repositories.Implementation
@@ -9,12 +10,14 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
     public class AuthenticationService : IAuthenticationService
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;        
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AuthenticationService(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AuthenticationService(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
         public async Task<Status> LoginAsync(Login model)
         {
@@ -26,7 +29,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 status.Message = "Username is not found";
                 return status;
             }
-                        
+
             if (!await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 status.StatusCode = 0;
@@ -36,7 +39,17 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
 
             var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, true);
             if (signInResult.Succeeded)
-            {               
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName)
+                };
+                foreach(var  userRole in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                }
+
                 status.StatusCode = 1;
                 status.Message = "Logged successfully";
                 return status;
@@ -63,6 +76,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
 
         public async Task<Status> RegistrationAsync(Registration model)
         {
+            
             var status = new Status();
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
@@ -70,16 +84,25 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 status.StatusCode = 0;
                 status.Message = "User already created, create new username";
                 return status;
-            }
+            }           
 
             ApplicationUser user = new ApplicationUser
-            {
+            {                
                 SecurityStamp = Guid.NewGuid().ToString(),
                 Name = model.FirstName,
                 Email = model.Email,
                 UserName = model.Username,
-                EmailConfirmed = true,
+                EmailConfirmed = true,                
             };
+
+            if (model.SecretPassword == "123456789")
+            {
+                model.Role = "Admin";
+            }
+            else
+            {
+                model.Role = "User";
+            }
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -87,17 +110,25 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 status.StatusCode = 0;
                 status.Message = "User creation failed";
                 return status;
-            }           
+            }
 
+            if(!await _roleManager.RoleExistsAsync(model.Role))
+                await _roleManager.CreateAsync(new IdentityRole(model.Role));
+            if (await _roleManager.RoleExistsAsync(model.Role))
+            {
+                await _userManager.AddToRoleAsync(user, model.Role);
+            }
+            
+                
             status.StatusCode = 1;
             status.Message = "User has registered successfully";
             return status;
         }
 
-        public async Task<Status>ChangePasswordAsync(ChangePassword model, string username)
+        public async Task<Status> ChangePasswordAsync(ChangePassword model, string username)
         {
             var status = new Status();
-            var user=await _userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByNameAsync(username);
             if (user == null)
             {
                 status.Message = "User not found";
@@ -105,7 +136,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 return status;
             }
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-            if (result.Succeeded && model.NewPassword==model.PasswordConfirm)
+            if (result.Succeeded && model.NewPassword == model.PasswordConfirm)
             {
                 status.Message = "Password has updated successfully";
                 status.StatusCode = 1;
@@ -121,13 +152,13 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                     status.StatusCode = 0;
                 }
             }
-          
+
             else
             {
                 status.Message = "Old password is wrong";
                 status.StatusCode = 0;
             }
             return status;
-        }
+        }        
     }
 }

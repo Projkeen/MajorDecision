@@ -1,4 +1,5 @@
-﻿using MajorDecision.Web.Data.Repositories.Abstract;
+﻿using Azure.Identity;
+using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Models.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace MajorDecision.Web.Controllers
         public async Task<IActionResult> Registration(Registration model)
         {
             if (!ModelState.IsValid)
-                return View(model);
+                return View(model);           
 
             var result = await _service.RegistrationAsync(model);
             if (result.StatusCode == 1)
@@ -90,7 +91,7 @@ namespace MajorDecision.Web.Controllers
                 TempData["msg"] = result.Message;
                 return RedirectToAction(nameof(ChangePassword));
             }            
-        }
+        }      
     }
 }
 

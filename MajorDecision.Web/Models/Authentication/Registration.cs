@@ -15,5 +15,7 @@ namespace MajorDecision.Web.Models.Authentication
         public string Password { get; set; }
         [Required, Compare("Password")]
         public string PasswordConfirm { get; set; }
+        public string? Role { get; set; }
+        public string? SecretPassword { get; set; }
     }
 }
