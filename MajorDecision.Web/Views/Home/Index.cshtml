@@ -7,6 +7,16 @@
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
 *@
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["msg"]
+        <button type="button" class="btn-close" data-dismiss="alert" style="float:right">
+           @*  <span>&times;</span> *@
+        </button>
+
+    </div>
+}
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <h5>Try asking a yes or no question!</h5>
@@ -14,7 +24,8 @@
         <br />
         <br />
         <h1>
-            <a class="nav-link text-dark" asp-area="" asp-controller="Decision" asp-action="Index">Try</a>
+            @* <a class="nav-link text-dark" asp-area="" asp-controller="Decision" asp-action="Index">Try</a> *@
+            <a class="btn btn-secondary" asp-area="" asp-controller="Decision" asp-action="Index" style="width:250px">Try</a>
         </h1>
     </p>
 </div>

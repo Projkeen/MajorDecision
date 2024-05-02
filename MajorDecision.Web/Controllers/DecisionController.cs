@@ -165,32 +165,40 @@ namespace MajorDecision.Web.Controllers
         //}
 
         [HttpGet]
-        public FileResult Download() //don't show russian letters, and not separate fields in rows
+        public IActionResult Download() //don't show russian letters, and not separate fields in rows
         {
             var user = HttpContext.User;
-            string[] dataShows = new string[] { "User, Question, Answer, Date Of Question" };
             var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
-            string csv = string.Empty;
-            foreach (string dataShow in dataShows)
+            if (decisions.Count() !=0)
             {
-                csv += dataShow + ',';
-            }
-            csv += "\r\n";
-
-
-            foreach (var decision in decisions)
-            {
-                csv += user.Identity.Name.Replace(",", ";") + ',';
-                csv += decision.Question.Replace(",", ";") + ',';
-                csv += decision.Answer.Replace(",", ";") + ',';
-                csv += decision.DateOfQuestion;
+                string[] dataShows = new string[] { "User Question Answer Date Of Question" };
+                //var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
+                string csv = string.Empty;
+                foreach (string dataShow in dataShows)
+                {
+                    csv += dataShow + ',';
+                }
                 csv += "\r\n";
-            }
-            //byte[] bytes = Encoding.ASCII.GetBytes(csv);
-            //byte[] bytes = Encoding.UTF8.GetBytes(csv);
-            byte[] bytes = Encoding.Unicode.GetBytes(csv);
-            return File(bytes, "text/csv", user.Identity.Name + " Answers.csv");
 
+                foreach (var decision in decisions)
+                {
+                    csv += user.Identity.Name.Replace(",", ";") + ',';
+                    csv += decision.Question.Replace(",", ";") + ',';
+                    csv += decision.Answer.Replace(",", ";") + ',';
+                    csv += decision.DateOfQuestion;
+                    csv += "\r\n";
+                }
+                //byte[] bytes = Encoding.ASCII.GetBytes(csv);
+                //byte[] bytes = Encoding.UTF8.GetBytes(csv);
+                byte[] bytes = Encoding.Unicode.GetBytes(csv);
+                return File(bytes, "text/csv", user.Identity.Name + " Answers.csv");
+            }
+            else
+            {
+                TempData["AlertMessage"] = "No data";
+                return RedirectToAction("AnswersHistory");
+            }
+            
         }
     }
 }
