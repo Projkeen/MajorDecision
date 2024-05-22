@@ -15,11 +15,16 @@ namespace MajorDecision.Web.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         IWebHostEnvironment _hostingEnvironment;
+        private readonly IAuthenticationService _service;
+        private readonly ApplicationDbContext _db;
 
-        public ProfileController(UserManager<ApplicationUser> userManager, IWebHostEnvironment hostingEnvironment)
+
+        public ProfileController(UserManager<ApplicationUser> userManager, IWebHostEnvironment hostingEnvironment, IAuthenticationService service, ApplicationDbContext db)
         {
             _userManager = userManager;
             _hostingEnvironment = hostingEnvironment;
+            _service = service;
+            _db = db;
         }
 
         //public void DisplayUser()
@@ -86,8 +91,24 @@ namespace MajorDecision.Web.Controllers
             return RedirectToAction("ManageProfile");
         }
 
-        public async Task<IActionResult> EditUser()
+
+        public async Task<IActionResult> EditUser(/*string id*/)
         {
+            //if (!string.IsNullOrEmpty(id))
+            //{
+            //    ApplicationUser user=await _userManager.FindByIdAsync(id);
+            //    if(user!=null)
+            //    {
+            //        UserViewModel model = new UserViewModel()
+            //        {
+            //            FirstName = user.Name,
+            //            Username = user.UserName,
+            //            Id = user.Id,
+            //            Email = user.Email,
+            //        };
+            //        return View(model);
+            //    }
+            //}
             //var user = await _userManager.GetUserAsync(User);
             //var userClaims = await _userManager.GetClaimsAsync(user);
             //var userRoles = await _userManager.GetRolesAsync(user);
@@ -103,29 +124,47 @@ namespace MajorDecision.Web.Controllers
             //};
             //return PartialView("_EditUserPartialView");
             //return View("ManageProfile");
-            return View();
 
+            return View();
+            //return View("ManageProfile");
         }
 
         [HttpPost]
         public async Task<IActionResult> EditUser(UserViewModel model)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            var userExists = await _userManager.FindByNameAsync(model.Username);
-            user.UserName = model.Username;
-            user.Email = model.Email;
-            user.Name = model.FirstName;
-            if (user.UserName != null && user.Name != null)
-            {
-                await _userManager.UpdateAsync(user);
-                TempData["msg"] = "User data has updated";
-                return RedirectToAction("ManageProfile");
-            }           
-            else
-            {
-                TempData["msg"] = "Smthg wrong (This username already using or username must be entered)";
-                return RedirectToAction("ManageProfile");
-            }
+        {               
+            
+                ApplicationUser user = await _userManager.FindByIdAsync(model.Id);
+                if (user != null)
+                {
+                    user.UserName = model.Username;
+                    user.Name = model.FirstName;
+                    user.Email = model.Email;
+                    IdentityResult result = await _userManager.UpdateAsync(user);
+                    if(result.Succeeded)
+                    {
+                        return RedirectToAction("ManageProfile", TempData["msg"] = "User data was updated!");
+                    }
+                }
+                return RedirectToAction("ManageProfile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
+
+            
+            return RedirectToAction("ManageProfile");
+            //var checkUser = await _userManager.FindByNameAsync(model.Username);
+            //var user = await _userManager.GetUserAsync(User);
+            //user.UserName = model.Username;
+            //user.Email = model.Email;
+            //user.Name = model.FirstName;
+            //if (user.UserName != null & user.Name != null & checkUser.ToString() != user.UserName)
+            //{
+            //    await _userManager.UpdateAsync(user);
+            //    TempData["msg"] = "User data has updated";
+            //    return RedirectToAction("ManageProfile");
+            //}
+            //else
+            //{
+            //    TempData["msg"] = "Smthg wrong (This username already using or username must be entered)";
+            //    return RedirectToAction("ManageProfile");
+            //}
             //var result = await _userManager.UpdateAsync(user);
             //if (result.Succeeded)
             //{
@@ -137,6 +176,30 @@ namespace MajorDecision.Web.Controllers
             //    TempData["msg"] = "Smthg wrong (This username already using or username must be entered)";
             //    return RedirectToAction("ManageProfile");
             //}            
+        }
+
+        public async Task<IActionResult> DeleteAccount(string str)
+        {
+            var user = HttpContext.User;
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null & str == "Delete")
+            {
+                var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
+                _db.Decisions.RemoveRange(decisions);
+                IdentityResult result = await _userManager.DeleteAsync(currentUser);
+                if (result.Succeeded)
+                {
+                    await _service.LogoutAsync();
+
+                    return RedirectToAction("Index", "Home", TempData["msg"] = "User has been deleted, we are waiting for you again");
+                }
+                //else
+                //{
+                //    return View();
+                //}
+            }
+
+            return RedirectToAction("ManageProfile", TempData["msg"] = "Error");
         }
     }
 }

@@ -44,6 +44,7 @@
 <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editUser">
     Edit Profile
 </button>
+
 <br>
 <br />
 <div class="modal fade" id="editUser" aria-labelledby="editUserLabel" aria-hidden="true">
@@ -57,7 +58,11 @@
             </div>
             <form asp-action="EditUser" method="post">
                 <div class="modal-body">
-
+                    <div class="form-group" style="display:none">
+                        <label class="control-label">Id</label>
+                        <input type="text" class="form-control" style="width:250px" asp-for="Id" placeholder="Id" />
+                        <span class="text-danger" asp-validation-for="Id"></span>
+                    </div>
                     <div class="form-group">
                         <label class="control-label">New name</label>
                         <input type="text" class="form-control" style="width:250px" asp-for="FirstName" placeholder="new name" />
@@ -72,10 +77,10 @@
                         <label class="control-label">New Email</label>
                         <input type="email" class="form-control" style="width:250px" asp-for="Email" placeholder="new email" />
                         <span class="text-danger" asp-validation-for="Email"></span>
-                    </div>       
+                    </div>
                 </div>
                 <div class="modal-footer">
-                     <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
                     @*<a class="btn btn-secondary" href="/Profile/ManageProfile">Cancel</a>*@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -92,7 +97,7 @@
         @* <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="@("#EditUser")" data-url="@Url.Action($"EditUser")">
         Edit Profile</button>*@
         @* <a class="btn btn-secondary" date-toggle="modal" data-target="#editUser" asp-action="EditUser" asp-controller="Profile">Edit Profile</a>*@
-               
+
         <span id="confirm" style="display:none">
             <form asp-controller="Profile" asp-action="UploadImage" method="post" enctype="multipart/form-data">
                 <input asp-for="Photo" />
@@ -111,6 +116,22 @@
         <span id="addPhoto">
             <a href="#" class="btn btn-secondary" onclick="addProfileImage(true)">Add/Delete Photo</a>
         </span>
+        <br>
+        <br />
+        <form asp-action="DeleteAccount" method="post">
+
+            <span id="confirmDeleteSpan" style="display:none">
+                <span>Are you sure?</span>
+
+                <input name="str" type="text" formmethod="get" class="form-control" style="width:200px;" placeholder="Enter <Delete> " />
+                <br>
+                <button type="submit" class="btn btn-danger" onclick="return confirm('⚠ Are you sure?')">Delete</button>
+                <a href="#" class="btn btn-secondary" onclick="confirmDelete(false)">Cancel</a>
+            </span>
+            <span id="deleteSpan">
+                <a href="#" class="btn btn-danger" onclick="confirmDelete(true)">Delete Account</a>
+            </span>
+        </form>
     </div>
     <div class="col-lg-6 col-md-6">
         <div>
@@ -132,7 +153,6 @@
         <h4>Name: @Model.FirstName</h4>
         <h4>Username: @Model.Username</h4>
         <h4>Email: @Model.Email</h4>
-
     </div>
 
 </div>
