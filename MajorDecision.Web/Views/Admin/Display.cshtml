@@ -1,4 +1,6 @@
 ﻿@model List<ApplicationUser>
+@* @model List<UserViewModel> *@
+
 @{
     ViewBag.Title = "Admin's page";
 }
@@ -13,46 +15,45 @@
 
     </div>
 }
+<form asp-action="ChangeUserRole" method="post">
 
-<table class="col-9" style="text-align:center" width="100%">
-    <thead>
-        <tr>
-            <th>Photo</th>
-            <th>Name</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Manage</th>
+    <table class="col-9" style="text-align:center" width="100%">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Manage</th>
+                <th>Info</th>
 
-        </tr>
-    </thead>
-    <tbody style="font-size:larger">
-        @foreach (var m in Model)      
-        {
-            <tr>                
-                <td>@m.ProfilePicture</td>
-                <td>@m.Name </td>
-                <td>@m.UserName</td>
-                <td>@m.Email</td>
-                <td>@m.</td>
-                <td>
-                    <div class="" role="">
-                        <a asp-page="/Admin/Prom" asp-route-id="@m.Id" class="">
-                            <i class="">Promote to admin</i>
-                        </a>
-                    </div>
-                </td>
-                <td>
-                    <div class="W-75 btn-group" role="group">
-                        <a asp-page="/Admin/details" asp-route-id="@m.Id" class="btn btn-primary mx-2">
-                            <i class="">Info</i>
-                        </a>
-                    </div>
-                </td>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody style="font-size:larger">
+            @foreach (var m in Model)
+            {
+                <tr>
+                    <td>@m.Name </td>
+                    <td>@m.UserName</td>
+                    <td>@m.Email</td>
+                    <td>
+                        <span >                            
+                            <a class="btn btn-secondary" asp-controller="Admin" asp-action="ChangeUserRole" asp-route-id="@m.Id">
+                                Change User Role
+                            </a>
+                        </span>
+                    </td>
+                    <td>
+                        <div class="W-75 btn-group" role="group">
+                            <a asp-page="/Admin/details" asp-route-id="@m.Id" class="btn btn-primary mx-2">
+                                <i class="">Info</i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
 </br>
 <div class="" role="">
     <form asp-action="ClearDataWithoutApplicationUserId" method="get">

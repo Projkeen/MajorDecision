@@ -36,7 +36,8 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 status.Message = "Invalid password";
                 return status;
             }
-
+            
+            //await _userManager.AddToRoleAsync(user, "Admin");
             var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, true);
             if (signInResult.Succeeded)
             {
@@ -49,6 +50,20 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 {
                     authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                 }
+
+                //if (!await _roleManager.RoleExistsAsync("User"))
+                //    await _roleManager.CreateAsync(new IdentityRole
+                //    {
+                //        Name = "User",
+                //        NormalizedName = "USER",
+                //        Id = Guid.NewGuid().ToString(),
+                //        ConcurrencyStamp = Guid.NewGuid().ToString()
+                //    });
+                //if (await _roleManager.RoleExistsAsync("User"))
+                //{
+                //    await _userManager.AddToRoleAsync(user,"User");
+                //}
+
 
                 status.StatusCode = 1;
                 status.Message = "Logged successfully";
@@ -97,7 +112,8 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
 
             if (model.SecretPassword == "123456789")
             {
-                model.Role = "Admin";
+                //model.Role = "Admin";
+                model.Role="Admin";
             }
             else
             {
@@ -112,8 +128,14 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 return status;
             }
 
-            if(!await _roleManager.RoleExistsAsync(model.Role))
-                await _roleManager.CreateAsync(new IdentityRole(model.Role));
+            if (!await _roleManager.RoleExistsAsync(model.Role))
+                await _roleManager.CreateAsync(new IdentityRole
+                {
+                    Name = model.Role,
+                    NormalizedName = model.Role.ToUpper(),
+                    Id = Guid.NewGuid().ToString(),
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                });
             if (await _roleManager.RoleExistsAsync(model.Role))
             {
                 await _userManager.AddToRoleAsync(user, model.Role);
