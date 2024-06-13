@@ -1,0 +1,29 @@
+﻿@model MajorDecision.Web.Models.UserViewModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> userManager
+
+@{
+    //Layout = null;
+    ViewBag.Title = "Profile info";
+
+}
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["msg"]
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
+            @* <span>&times;</span>*@
+        </button>
+
+    </div>
+}
+
+<h2 class="text-center">@Model.Username info</h2>
+
+<form asp-action="UserInfo" method="post">
+    <div class="modal-body">
+        <div class="form-group" >
+            <p>1223</p>
+        </div>
+    
+</form>

@@ -1,0 +1,104 @@
+﻿@* @model List<ApplicationUser> *@
+@model List<MajorDecision.Web.Models.UserViewModel>
+
+@{
+    ViewBag.Title = "Admin's page";
+}
+
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["msg"]
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
+            @* <span>&times;</span>*@
+        </button>
+
+    </div>
+}
+<form asp-action="ChangeUserRole" method="post">
+
+    <table class="col-9" style="text-align:center" width="100%">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Manage</th>
+                <th>Info</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:larger">
+            @foreach (var m in Model)
+            {
+                <tr>
+                    <td>@m.FirstName </td>
+                    <td>@m.Username</td>
+                    <td>@m.Email</td>
+                    @* <td>@m.Roles.ToArray().ToString()</td> *@
+                    <td>@m.Roles.ToString().FirstOrDefault()</td>
+                    @* <td>@foreach (string role in m.Roles)
+                        {
+                            <p>@role.FirstOrDefault()</p>
+                        }
+                    </td> *@
+                    <td>
+                        <span>
+                            <a class="btn btn-secondary" asp-controller="Admin" asp-action="ChangeUserRole" asp-route-id="@m.Id">
+                                Change User Role
+                            </a>
+                        </span>
+                    </td>
+                    <td>
+                        <div class="">
+                            <a class="btn btn-secondary" asp-controller="Admin" asp-action="UserInfo" asp-route-id="@m.Id">
+                                Info page
+                            </a>
+                            @*  <a asp-page="/Admin/UserInfo" asp-route-id="@m.Id" class="btn btn-primary mx-2">
+                        <i class="">Info</i>
+                        </a> *@
+                        </div>
+                        <button type="button" class="btn btn-secondary" asp-route-id="@m.Id" data-bs-toggle="modal" data-bs-target="#userInfo">
+                            Info popup
+                        </button>
+                    </td>
+                </tr>
+            }                 
+        </tbody>
+    </table>
+</form>
+</br>
+<div class="modal fade" id="userInfo" aria-labelledby="infoUserLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:gray">
+                <h4 class="modal-title" id="editUserLabel">Edit Profile</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    @* <span aria-hidden="true">&times;</span>*@
+                </button>
+            </div>
+            <form asp-action="UserInfo" method="get">
+                <div class="modal-body">
+                    @foreach (var v in Model)
+                    {
+                        <p>@v.Photo </p>
+                        <p>@v.FirstName</p>
+                        <p>@v.Username</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    @* <button type="submit" class="btn btn-primary">Save changes</button> *@
+                    @*<a class="btn btn-secondary" href="/Profile/ManageProfile">Cancel</a>*@
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="" role="">
+    <form asp-action="ClearDataWithoutApplicationUserId" method="get">
+        <input type="submit" value="Clear data without userId" class="btn btn-danger" />
+    </form>
+</div>

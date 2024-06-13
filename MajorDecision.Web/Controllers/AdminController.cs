@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System.Collections.Immutable;
 using System.Data;
 using System.Reflection.Metadata;
 using System.Security.Claims;
@@ -26,11 +27,24 @@ namespace MajorDecision.Web.Controllers
             _db = db;
             _roleManager = roleManager;
         }
-        public async Task<IActionResult> Display()
+        public async Task<IActionResult> DisplayUsers()
         {
-            var users = await _db.Users.ToListAsync();
-            //var model=new UserViewModel            
-            return View(users);
+            List<UserViewModel> userViewModels = new List<UserViewModel>();
+            var currentUser = await _userManager.GetUserAsync(User);
+            var users = await _db.Users.Where(u => u.Id != currentUser.Id).ToListAsync();
+            //var model=new UserViewModel
+            foreach(var user in users)
+            {
+                UserViewModel model = new UserViewModel();
+                model.Id=user.Id;
+                model.Username = user.UserName;
+                model.FirstName=user.Name;
+                model.Email = user.Email;
+                userViewModels.Add(model);
+            }
+            return View(userViewModels);
+
+            //return View(users);
             //var users = _db.Users.ToList();
             //var roleAdmin = _db.UserRoles.Find("Admin");
             //var roleUser = _db.Users.Find("User");
@@ -60,6 +74,14 @@ namespace MajorDecision.Web.Controllers
             //return RedirectToAction("ManageProfile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
 
             //return View(users.ToList());
+        }
+
+        public string GetRole(string Id)
+        {
+            var userRole = _db.Users.Where(u => u.Id == Id).Join(_roleManager.Roles, u => u.Id, r => r.Id, (u, r) => r.Name).FirstOrDefault();
+
+
+            return userRole;
         }
 
         [HttpGet]
@@ -98,18 +120,18 @@ namespace MajorDecision.Web.Controllers
             //var userInRole = _db.UserRoles.Where(x => x.UserId == Id).Select(x => x.RoleId).ToList();
             //var userInRole = _db.UserRoles.Where(x => x.UserId == Id).Select(x => x.RoleId).Contains("User").ToString();
             var roles = await _userManager.GetRolesAsync(user);
-            var ifAdmin=roles.Single();
+            var ifAdmin = roles.Single();
             //var j = roles.First();
             string roleName = "Admin";
             var role = await _roleManager.Roles.SingleAsync(r => r.Name == roleName);
             //var roleName=_db.UserRoles.Where(r=>r.UserId==Id && r.RoleId==roles.ToString()).Select(r=>r.)
             //userInRole.ToString();
             if (ifAdmin == "Admin")//role.Name)
-                //"1d4d9a0b-80aa-47ad-baf0-027d4b5b1225"
-                //(await _roleManager.RoleExistsAsync("User"))
+                                   //"1d4d9a0b-80aa-47ad-baf0-027d4b5b1225"
+                                   //(await _roleManager.RoleExistsAsync("User"))
             {
                 await _userManager.RemoveFromRoleAsync(user, "Admin");
-                await _userManager.AddToRoleAsync(user, "User");                
+                await _userManager.AddToRoleAsync(user, "User");
                 _db.SaveChanges();
                 TempData["msg"] = $"User {user.UserName} has the role <User>";
             }
@@ -135,43 +157,93 @@ namespace MajorDecision.Web.Controllers
             //userRoles.Roles=await _roleManager.Roles.Select(x=>new )
 
 
-            return RedirectToAction("Display","Admin");
+            return RedirectToAction("DisplayUsers", "Admin");
         }
 
-        public async Task<IActionResult> ClearDataWithoutApplicationUserId()        
+        public async Task<IActionResult> ClearDataWithoutApplicationUserId()
         {
             var decisionsWithoutApplicationUserId = _db.Decisions.Where(decisions => decisions.ApplicationUserId == null).ToList();
             if (decisionsWithoutApplicationUserId.Count > 0)
             {
                 _db.Decisions.RemoveRange(decisionsWithoutApplicationUserId);
                 await _db.SaveChangesAsync();
-                return RedirectToAction("Display", "Admin", TempData["msg"] = "Data has been deleted");
+                return RedirectToAction("DisplayUsers", "Admin", TempData["msg"] = "Data has been deleted");
             }
-            
-            return RedirectToAction("Display", "Admin", TempData["msg"] = "No data");
+
+            return RedirectToAction("DisplayUsers", "Admin", TempData["msg"] = "No data");
         }
 
-        //public async Task<IActionResult> CreateAdminRole(RoleViewModel model)
-        //{
+        [HttpGet]
+        public async Task<IActionResult> UserInfo(string Id)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(Id);
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
+            //var user = _db.Users.Where(x => x.Id == Id).SingleOrDefault();
+            UserViewModel model = new UserViewModel            
+            {
+                Id = user.Id,
+                FirstName = user.Name,
+                Username = user.UserName,
+                Email = user.Email,
+                Claims = userClaims.Select(c => c.Value).ToList(),
+                Roles = userRoles,                
+            };
 
-        //    IdentityRole identityRole = new IdentityRole()
-        //    {
-        //        //Name = model.Role
-        //        Name = "Admin"
-        //    };
-        //        IdentityResult result = await _roleManager.CreateAsync(identityRole);
-
-        //        if (result.Succeeded)
-        //        {
-        //            return RedirectToAction("Display", "Admin", TempData["msg"] = "Role created!");
-        //        }                
-
-
-        //    return RedirectToAction("Display", "Admin", TempData["msg"] = "Error!");
-        //}
-
+            ViewData["Photo"] = user.ProfilePicture;
+            return View(model);
+        }
         //[HttpPost]
-        //public async Task <IActionResult> 
+        //public async Task<IActionResult> UserInfo(UserViewModel model)
+        //{
+        //    ApplicationUser user = await _userManager.FindByIdAsync(model.Id);
+        //    //var user = _db.Users.Where(x => x.Id == Id).SingleOrDefault();
+        //    //UserViewModel model = new UserViewModel();
+        //    if (user != null)
+        //    {
+        //        user.UserName = model.Username;
+        //        user.Name = model.FirstName;
+        //        user.Email = model.Email;
+        //        user.ProfilePicture = model.Photo.ToString();
+        //    };
 
+        //    return RedirectToAction("UserInfo", "Admin");
+            //ApplicationUser user = await _userManager.FindByIdAsync(model.Id);
+            //if (user != null)
+            //{
+            //    user.UserName = model.Username;
+            //    user.Name = model.FirstName;
+            //    user.Email = model.Email;
+            //    IdentityResult result = await _userManager.UpdateAsync(user);
+            //    if (result.Succeeded)
+            //    {
+            //        return RedirectToAction("ManageProfile", TempData["msg"] = "User data was updated!");
+            //    }
+            //}
+            //return RedirectToAction("ManageProfile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
+
+            //public async Task<IActionResult> CreateAdminRole(RoleViewModel model)
+            //{
+
+            //    IdentityRole identityRole = new IdentityRole()
+            //    {
+            //        //Name = model.Role
+            //        Name = "Admin"
+            //    };
+            //        IdentityResult result = await _roleManager.CreateAsync(identityRole);
+
+            //        if (result.Succeeded)
+            //        {
+            //            return RedirectToAction("Display", "Admin", TempData["msg"] = "Role created!");
+            //        }                
+
+
+            //    return RedirectToAction("Display", "Admin", TempData["msg"] = "Error!");
+            //}
+
+            //[HttpPost]
+            //public async Task <IActionResult> 
+
+        
     }
 }

@@ -129,7 +129,7 @@ namespace MajorDecision.Web.Controllers
             //return View("ManageProfile");
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> EditUser(UserViewModel model)
         {               
             
@@ -142,10 +142,10 @@ namespace MajorDecision.Web.Controllers
                     IdentityResult result = await _userManager.UpdateAsync(user);
                     if(result.Succeeded)
                     {
-                        return RedirectToAction("ManageProfile", TempData["msg"] = "User data was updated!");
+                        return RedirectToAction("ManageProfile", "Profile", TempData["msg"] = "User data was updated!");
                     }
                 }
-                return RedirectToAction("ManageProfile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
+                return RedirectToAction("ManageProfile", "Profile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
 
             
             return RedirectToAction("ManageProfile");
