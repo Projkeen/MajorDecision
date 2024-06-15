@@ -97,7 +97,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             if (userExists != null)
             {
                 status.StatusCode = 0;
-                status.Message = "User already created, create new username";
+                status.Message = "Error! User already created, create new username";
                 return status;
             }           
 
