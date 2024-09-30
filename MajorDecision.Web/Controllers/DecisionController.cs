@@ -42,6 +42,7 @@ namespace MajorDecision.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> IndexAsync(Decision decision, string lucky)
         {
+            //var secret = decision.SecretMethod();
             var user = HttpContext.User;
             //var userId = _db.UserLogins.Find(ClaimTypes.NameIdentifier).UserId;
             if (decision.Question != null)

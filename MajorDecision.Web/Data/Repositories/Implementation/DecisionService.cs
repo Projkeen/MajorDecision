@@ -9,15 +9,17 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
     {        
         public async Task<Decision> ShowAnswerByFirstMethodAsync(Decision decision)
         {
+            //int secretNumber = decision.SecretMethod();
+            int secretNumber = DateTime.Now.Second * decision.Question.Length;
             Random random = new Random();
             int rnd = random.Next(100);
             //decision.Answer = str.Length.ToString();                   
-            int ans = int.Parse(decision.Question.Length.ToString());           
-            if ((ans % 2 == 0) && (rnd % 2 == 0))
+            //int ans = int.Parse(decision.Question.Length.ToString());           
+            if ((secretNumber % 2 == 0) && (rnd % 2 == 0))
             {
                 decision.Answer = "yes";
             }
-            else if ((ans % 2 != 0) && (rnd % 2 != 0))
+            else if ((secretNumber % 2 != 0) && (rnd % 2 != 0))
             {
                 decision.Answer = "yes";
             }

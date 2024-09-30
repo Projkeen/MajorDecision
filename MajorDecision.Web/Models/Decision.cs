@@ -14,6 +14,13 @@ namespace MajorDecision.Web.Models
 
         public string? ApplicationUserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
+
+        //public int SecretMethod()
+        //{
+        //    //var currentTime = DateTime.Now.DayOfWeek.ToString();            
+        //    int x = DateTime.Now.Second * Question.Length;
+        //    return x;
+        //}
     }
 }
 
