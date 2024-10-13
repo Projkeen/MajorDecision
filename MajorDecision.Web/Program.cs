@@ -12,6 +12,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options=>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//string cs = "Server=(localdb)\\\\MSSQLLocalDB;Database=MajorDecision;Trusted_Connection=true;TrustServerCertificate=True";
+//builder.Services.AddDbContext<ApplicationDbContext>(s=> s.UseSqlServer(cs));
+
 // for identity
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()

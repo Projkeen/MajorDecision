@@ -33,12 +33,12 @@ namespace MajorDecision.Web.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             var users = await _db.Users.Where(u => u.Id != currentUser.Id).ToListAsync();
             //var model=new UserViewModel
-            foreach(var user in users)
+            foreach (var user in users)
             {
                 UserViewModel model = new UserViewModel();
-                model.Id=user.Id;
+                model.Id = user.Id;
                 model.Username = user.UserName;
-                model.FirstName=user.Name;
+                model.FirstName = user.Name;
                 model.Email = user.Email;
                 userViewModels.Add(model);
             }
@@ -180,14 +180,14 @@ namespace MajorDecision.Web.Controllers
             var userClaims = await _userManager.GetClaimsAsync(user);
             var userRoles = await _userManager.GetRolesAsync(user);
             //var user = _db.Users.Where(x => x.Id == Id).SingleOrDefault();
-            UserViewModel model = new UserViewModel            
+            UserViewModel model = new UserViewModel
             {
                 Id = user.Id,
                 FirstName = user.Name,
                 Username = user.UserName,
                 Email = user.Email,
                 Claims = userClaims.Select(c => c.Value).ToList(),
-                Roles = userRoles,                
+                Roles = userRoles,
             };
 
             ViewData["Photo"] = user.ProfilePicture;
@@ -208,42 +208,87 @@ namespace MajorDecision.Web.Controllers
         //    };
 
         //    return RedirectToAction("UserInfo", "Admin");
-            //ApplicationUser user = await _userManager.FindByIdAsync(model.Id);
-            //if (user != null)
-            //{
-            //    user.UserName = model.Username;
-            //    user.Name = model.FirstName;
-            //    user.Email = model.Email;
-            //    IdentityResult result = await _userManager.UpdateAsync(user);
-            //    if (result.Succeeded)
-            //    {
-            //        return RedirectToAction("ManageProfile", TempData["msg"] = "User data was updated!");
-            //    }
-            //}
-            //return RedirectToAction("ManageProfile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
+        //ApplicationUser user = await _userManager.FindByIdAsync(model.Id);
+        //if (user != null)
+        //{
+        //    user.UserName = model.Username;
+        //    user.Name = model.FirstName;
+        //    user.Email = model.Email;
+        //    IdentityResult result = await _userManager.UpdateAsync(user);
+        //    if (result.Succeeded)
+        //    {
+        //        return RedirectToAction("ManageProfile", TempData["msg"] = "User data was updated!");
+        //    }
+        //}
+        //return RedirectToAction("ManageProfile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
 
-            //public async Task<IActionResult> CreateAdminRole(RoleViewModel model)
-            //{
+        //public async Task<IActionResult> CreateAdminRole(RoleViewModel model)
+        //{
 
-            //    IdentityRole identityRole = new IdentityRole()
-            //    {
-            //        //Name = model.Role
-            //        Name = "Admin"
-            //    };
-            //        IdentityResult result = await _roleManager.CreateAsync(identityRole);
+        //    IdentityRole identityRole = new IdentityRole()
+        //    {
+        //        //Name = model.Role
+        //        Name = "Admin"
+        //    };
+        //        IdentityResult result = await _roleManager.CreateAsync(identityRole);
 
-            //        if (result.Succeeded)
-            //        {
-            //            return RedirectToAction("Display", "Admin", TempData["msg"] = "Role created!");
-            //        }                
+        //        if (result.Succeeded)
+        //        {
+        //            return RedirectToAction("Display", "Admin", TempData["msg"] = "Role created!");
+        //        }                
 
 
-            //    return RedirectToAction("Display", "Admin", TempData["msg"] = "Error!");
-            //}
+        //    return RedirectToAction("Display", "Admin", TempData["msg"] = "Error!");
+        //}
 
-            //[HttpPost]
-            //public async Task <IActionResult> 
+        //[HttpPost]
+        //public async Task <IActionResult> 
 
-        
+        public async Task<IActionResult> DisplayAnswers()
+        {
+            var answers = await _db.Answers.ToListAsync();
+            return View(answers);
+        }
+
+
+        public IActionResult AddAnswerSentence(Answers newAnswer)
+        {
+            if (ModelState.IsValid)
+            {
+                _db.Answers.Add(newAnswer);
+                _db.SaveChanges();
+                return RedirectToAction("DisplayAnswers");
+            }
+            return View();
+        }
+
+        public IActionResult Manage(int id)
+        {
+            var answer = _db.Answers.Find(id);
+            return View(answer);
+        }
+
+
+        [HttpPost]
+        public IActionResult EditAnswerSentence(Answers modAnswer)
+        {
+            if (ModelState.IsValid)
+            {
+                _db.Answers.Update(modAnswer);
+                _db.SaveChanges();
+                return RedirectToAction("DisplayAnswers");
+            }
+            TempData["msg"] = "Field <Answer> is required";
+            return RedirectToAction("Manage");
+        }
+
+        [HttpPost]
+        public IActionResult DeleteAnswerSentence(int id)
+        {
+            var modAnswer= _db.Answers.Find(id);
+            _db.Answers.Remove(modAnswer);
+            _db.SaveChanges();
+            return RedirectToAction("DisplayAnswers");
+        }
     }
 }
