@@ -18,7 +18,6 @@ namespace MajorDecision.Web.Controllers
         private readonly IAuthenticationService _service;
         private readonly ApplicationDbContext _db;
 
-
         public ProfileController(UserManager<ApplicationUser> userManager, IWebHostEnvironment hostingEnvironment, IAuthenticationService service, ApplicationDbContext db)
         {
             _userManager = userManager;
@@ -54,7 +53,6 @@ namespace MajorDecision.Web.Controllers
             };
 
             ViewData["Photo"] = user.ProfilePicture;
-
             return View(model);
         }
 
@@ -77,9 +75,7 @@ namespace MajorDecision.Web.Controllers
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
                 model.Photo.CopyTo(new FileStream(filePath, FileMode.Create));
             }
-
             currentUser.ProfilePicture = uniqueFileName;
-
 
             //ApplicationUser updateUser = new ApplicationUser
             //{
@@ -131,23 +127,22 @@ namespace MajorDecision.Web.Controllers
 
         [HttpGet]
         public async Task<IActionResult> EditUser(UserViewModel model)
-        {               
-            
-                ApplicationUser user = await _userManager.FindByIdAsync(model.Id);
-                if (user != null)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(model.Id);
+            if (user != null)
+            {
+                user.UserName = model.Username;
+                user.Name = model.FirstName;
+                user.Email = model.Email;
+                IdentityResult result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
                 {
-                    user.UserName = model.Username;
-                    user.Name = model.FirstName;
-                    user.Email = model.Email;
-                    IdentityResult result = await _userManager.UpdateAsync(user);
-                    if(result.Succeeded)
-                    {
-                        return RedirectToAction("ManageProfile", "Profile", TempData["msg"] = "User data was updated!");
-                    }
+                    return RedirectToAction("ManageProfile", "Profile", TempData["msg"] = "User data was updated!");
                 }
-                return RedirectToAction("ManageProfile", "Profile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
+            }
+            return RedirectToAction("ManageProfile", "Profile", TempData["msg"] = "Smthg wrong (This username already using or username must be entered)");
 
-            
+
             return RedirectToAction("ManageProfile");
             //var checkUser = await _userManager.FindByNameAsync(model.Username);
             //var user = await _userManager.GetUserAsync(User);
@@ -184,13 +179,14 @@ namespace MajorDecision.Web.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser != null & str == "Delete")
             {
+                var decisionPages = _db.DiscussionPages.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
                 var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
                 _db.Decisions.RemoveRange(decisions);
+                _db.DiscussionPages.RemoveRange(decisionPages);
                 IdentityResult result = await _userManager.DeleteAsync(currentUser);
                 if (result.Succeeded)
                 {
                     await _service.LogoutAsync();
-
                     return RedirectToAction("Index", "Home", TempData["msg"] = "User has been deleted, we are waiting for you again");
                 }
                 //else
@@ -198,7 +194,6 @@ namespace MajorDecision.Web.Controllers
                 //    return View();
                 //}
             }
-
             return RedirectToAction("ManageProfile", TempData["msg"] = "Error");
         }
     }

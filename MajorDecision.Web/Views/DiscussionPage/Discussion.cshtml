@@ -1,0 +1,183 @@
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@model MajorDecision.Web.Models.DiscussionPage
+@inject UserManager<ApplicationUser> userManager
+
+@{
+    ViewData["Title"] = "Discussion";
+}
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["msg"]
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
+            @* <span>&times;</span>*@
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-sm">
+        <a asp-action="DisplayPages" class="btn btn-info" style="width:10% text-allign:left">Back</a>
+    </div>
+    <div class="col-sm">
+        <h4 style="text-align:left">@Model.Question</h4>
+    </div>
+    <div class="col-sm"></div>
+</div>
+<div class="container" style="background-color:grey; margin-top:50px; margin-bottom:50px; padding:20px;border-radius: 10px;">
+    @if (User.Identity.IsAuthenticated)
+    {
+        var user = userManager.GetUserAsync(User);
+        var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        if (currentUserId == Model.ApplicationUserId)
+        {
+            <div class="row">
+                <div class="col-sm">
+                    @if (string.IsNullOrEmpty(Model.ApplicationUser.ProfilePicture))
+                    {
+                        <img src="~/images/NoImage.png" style="max-width: 400px; max-height: 400px;" />
+                    }
+                    else
+                    {
+                        <img src="~/images/profileImages/@Model.ApplicationUser.ProfilePicture" style="max-width: 400px; max-height: 400px;" />
+                    }
+                </div>
+                <div class="col-sm">
+                    <h3>Answer: @Model.Answer</h3>                    
+                    <h3>Description: @Model.Description</h3>
+                    <h4><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addDescription">Add description</button></h4>
+                    <div>Posted by: @Model.ApplicationUser</div>
+                </div>
+                <div class="col-sm text-end">
+                    <a class="btn btn-danger" asp-controller="DiscussionPage" asp-action="DeletePage" asp-route-id="@Model.Id" onclick="return confirm('⚠ Are you sure?')">X</a>
+                    @* @await Html.PartialAsync("_DeleteCardPartialView", mod) *@
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-sm">
+                    @if (string.IsNullOrEmpty(Model.ApplicationUser.ProfilePicture))
+                    {
+                        <img src="~/images/NoImage.png" style="max-width: 400px; max-height: 400px;" />
+                    }
+                    else
+                    {
+                        <img src="~/images/profileImages/@Model.ApplicationUser.ProfilePicture" style="max-width: 400px; max-height: 400px;" />
+                    }
+                </div>
+                <div class="col-sm">
+                    <h3>Answer: @Model.Answer</h3>
+                    <h3>Description: @Model.Description</h3>
+                    <h4><a class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addComment">Add comment</a></h4>
+                    <div>Posted by: @Model.ApplicationUser</div>
+                </div>
+                <div class="col-sm text-end">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="btn btn-danger" asp-controller="DiscussionPage" asp-action="DeleteCard" asp-route-id="@Model.Id" onclick="return confirm('⚠ Are you sure?')">X</a>
+                        @* @await Html.PartialAsync("_DeleteCardPartialView", mod) *@
+                    }
+                </div>
+            </div>
+        }
+        @* <h5><a asp-action="" asp-route-id="@post.Id">Question: @post.Question</a></h5> *@
+    }
+</div>
+<div class="container">
+    <h4 style="text-align:center">Comments</h4>
+    @foreach (var comment in Model.Comments)
+    {
+        <div style="background-color:grey; margin-top:10px; margin-bottom:0px; padding:10px; border-radius: 10px; width: 100%;">
+            <div class="row">
+                <div class="col-sm">
+                    @if (string.IsNullOrEmpty(comment.ApplicationUser.ProfilePicture))
+                    {
+                        <img src="~/images/NoImage.png" style="max-width: 400px; max-height: 50px;" />
+                    }
+                    else
+                    {
+                        <img src="~/images/profileImages/@comment.ApplicationUser.ProfilePicture" style="max-width: 400px; max-height: 50px;" />
+                    }
+                </div>
+                <div class="col-sm">
+                    <h4>@comment.ApplicationUser.UserName</h4>
+                    <h5>@comment.Text</h5>
+                </div>
+                <div class="col-sm text-end">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                        if (currentUserId == comment.ApplicationUserId | User.IsInRole("Admin"))
+                        {
+                            <a class="btn btn-danger" asp-controller="DiscussionPage" asp-action="DeleteComment" asp-route-id="@comment.Id" onclick="return confirm('⚠ Are you sure?')">X</a>
+                            @* @await Html.PartialAsync("_DeleteCardPartialView", mod) *@
+                        }
+                    }
+                    <p style="margin-top:10px">@comment.DateOfComment</p>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Comments.Any())
+    {
+        <h4 style="text-align:center">No Comments</h4>
+    }
+</div>
+<div class="modal fade" id="addDescription" aria-labelledby="addDescriptionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:gray">
+                <h4 class="modal-title" id="addDescriptionLabel">Add Description</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    @* <span aria-hidden="true">&times;</span>*@
+                </button>
+            </div>
+            <form asp-controller="DiscussionPage" asp-action="AddDescription" method="post">
+                <div class="modal-body">
+                    <div class="form-group" style="display:none">
+                        <label class="control-label">Id</label>
+                        <input type="text" class="form-control" style="width:250px" asp-for="Id" placeholder="Id" />
+                        <span class="text-danger" asp-validation-for="Id"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Description</label>
+                        <input type="text" class="form-control" style="width:250px" asp-for="Description" placeholder="description" />
+                        <span class="text-danger" asp-validation-for="Description"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Description</button>
+                    @*<a class="btn btn-secondary" href="/Profile/ManageProfile">Cancel</a>*@
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addComment" aria-labelledby="addCommentLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:gray">
+                <h4 class="modal-title" id="addCommentLabel">Add Comment</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    @* <span aria-hidden="true">&times;</span>*@
+                </button>
+            </div>
+            <form asp-controller="DiscussionPage" asp-action="AddComment" method="post">
+                <div class="modal-body">
+                    <h6>Add comment</h6>
+                    <textarea class="form-control" style="width:475px; vertical-align:top;" aria-label="With textarea" name="Text"></textarea>
+                    <input type="hidden" name="ApplicationUserId" class="form-control" value="@userManager.GetUserId(User)" />
+                    <input type="hidden" name="DiscussionPageId" class="form-control" value="@Model.Id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                    @*<a class="btn btn-secondary" href="/Profile/ManageProfile">Cancel</a>*@
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>            
+        </div>
+    </div>
+</div>

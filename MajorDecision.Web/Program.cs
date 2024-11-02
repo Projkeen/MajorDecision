@@ -2,6 +2,7 @@ using MajorDecision.Web.Data;
 using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Data.Repositories.Implementation;
 using MajorDecision.Web.Models;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,8 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options=>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Authentication/Login");
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>().AddScoped<IDecision, DecisionService>();
-
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>().AddScoped<IDecision, DecisionService>().AddScoped<IPageService, PageService>();
 // Default Password settings.
 builder.Services.Configure<IdentityOptions>(options =>
 {

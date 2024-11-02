@@ -14,6 +14,8 @@ namespace MajorDecision.Web.Data
 
         public DbSet<Decision> Decisions { get; set; }
         public DbSet<Answers> Answers { get; set; }
+        public DbSet<DiscussionPage> DiscussionPages { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         //protected override void OnModelCreating(ModelBuilder builder)
         //{
