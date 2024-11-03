@@ -99,7 +99,7 @@
         @* <a class="btn btn-secondary" date-toggle="modal" data-target="#editUser" asp-action="EditUser" asp-controller="Profile">Edit Profile</a>*@
 
         <span id="confirm" style="display:none">
-            <form asp-controller="Profile" asp-action="UploadImage" method="post" enctype="multipart/form-data">
+            <form asp-controller="Profile" asp-action="UploadOrDeleteImage" method="post" enctype="multipart/form-data">
                 <input asp-for="Photo" />
                 @if (ViewData["Photo"] == null)
                 {
@@ -107,9 +107,9 @@
                     <a href="#" class="btn btn-secondary" onclick="addProfileImage(false)">Cancel</a>
                 }
                 else
-                {
-                    <button type="submit" class="btn btn-primary">Delete Photo</button>
-                    <a href="#" class="btn btn-secondary" onclick="addProfileImage(false)">Cancel</a>
+                {                    
+                    <button type="submit" class="btn btn-danger">Delete Photo</button>
+                    <a href="#" class="btn btn-secondary" onclick="addProfileImage(false)">Cancel</a>                                       
                 }
             </form>
         </span>
@@ -122,7 +122,6 @@
 
             <span id="confirmDeleteSpan" style="display:none">
                 <span>Are you sure?</span>
-
                 <input name="str" type="text" formmethod="get" class="form-control" style="width:200px;" placeholder="Enter <Delete> " />
                 <br>
                 <button type="submit" class="btn btn-danger" onclick="return confirm('⚠ Are you sure?')">Delete</button>

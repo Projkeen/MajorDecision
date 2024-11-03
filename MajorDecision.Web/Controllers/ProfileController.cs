@@ -2,6 +2,7 @@
 using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Models;
 using MajorDecision.Web.Models.Authentication;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -62,29 +63,58 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadImage(UserViewModel model)
+        public async Task<IActionResult> UploadOrDeleteImage(UserViewModel model)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             //var currentUser = await _userManager.FindByIdAsync(model.Id);
             //var currentUser = User.Identity.Name;
             string uniqueFileName = null;
-            if (model.Photo != null)
+            if (currentUser.ProfilePicture == null)
             {
-                string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images", "profileImages");
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photo.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                model.Photo.CopyTo(new FileStream(filePath, FileMode.Create));
+                if (model.Photo != null)
+                {
+                    string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images", "profileImages");
+                    uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photo.FileName;
+                    //uniqueFileName = model.Photo.FileName;
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    model.Photo.CopyTo(new FileStream(filePath, FileMode.Create));
+                    currentUser.ProfilePicture = uniqueFileName;                    
+                }
+                else
+                {
+                    return RedirectToAction("ManageProfile", TempData["msg"] = "No file");
+                }
             }
-            currentUser.ProfilePicture = uniqueFileName;
+            else
+            {
+                if (model.Photo == null)
+                {
+                    var fileNameForDelete = currentUser.ProfilePicture.ToString();
+                    var filePath = Path.Combine(_hostingEnvironment.WebRootPath, "images",
+                        "profileImages", fileNameForDelete.ToString());
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                    currentUser.ProfilePicture = uniqueFileName;
+                }
+                else
+                {
+                    return RedirectToAction("ManageProfile", TempData["msg"] = "Error! ");
+                }                
+            }
+            await _userManager.UpdateAsync(currentUser);
+            return RedirectToAction("ManageProfile");
+            //currentUser.ProfilePicture = uniqueFileName;
 
             //ApplicationUser updateUser = new ApplicationUser
             //{
             //    ProfilePicture = uniqueFileName
             //};
-            await _userManager.UpdateAsync(currentUser);
+            //await _userManager.UpdateAsync(currentUser);
 
             //var result= _userManager.Users.Add(updateUser);
-            return RedirectToAction("ManageProfile");
         }
 
 
