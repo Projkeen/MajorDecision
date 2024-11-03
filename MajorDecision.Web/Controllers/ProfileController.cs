@@ -77,8 +77,12 @@ namespace MajorDecision.Web.Controllers
                     uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photo.FileName;
                     //uniqueFileName = model.Photo.FileName;
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                    model.Photo.CopyTo(new FileStream(filePath, FileMode.Create));
-                    currentUser.ProfilePicture = uniqueFileName;                    
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        model.Photo.CopyTo(fileStream);
+                    }
+                    //model.Photo.CopyTo(new FileStream(filePath, FileMode.Create));
+                        currentUser.ProfilePicture = uniqueFileName;                    
                 }
                 else
                 {
