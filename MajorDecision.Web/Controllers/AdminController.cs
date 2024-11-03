@@ -19,13 +19,15 @@ namespace MajorDecision.Web.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _db;
         private readonly RoleManager<IdentityRole> _roleManager;
+        IWebHostEnvironment _hostingEnvironment;
 
-        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+        public AdminController(UserManager<ApplicationUser> userManager, IWebHostEnvironment hostingEnvironment, RoleManager<IdentityRole> roleManager,
             ApplicationDbContext db)
         {
             _userManager = userManager;
             _db = db;
             _roleManager = roleManager;
+            _hostingEnvironment = hostingEnvironment;
         }
         public async Task<IActionResult> DisplayUsers()
         {
@@ -290,5 +292,39 @@ namespace MajorDecision.Web.Controllers
             _db.SaveChanges();
             return RedirectToAction("DisplayAnswers");
         }
+
+        public async Task<IActionResult> ClearAllProfilePictures()
+        {
+            string wwwrootPath = Path.Combine(_hostingEnvironment.WebRootPath, "images", "profileImages");
+
+            if (Directory.Exists(wwwrootPath))
+            {
+                foreach (string file in Directory.GetFiles(wwwrootPath))
+                {
+                    System.IO.File.Delete(file);
+                }
+            }
+            else
+            {
+                return RedirectToAction("DisplayUsers", "Admin", TempData["msg"] = "No folder");                
+            }
+
+            var usersWithProfilePicture = _db.Users.Where(u => u.ProfilePicture != null).ToList();
+            //string empty = null;
+            if (usersWithProfilePicture.Count > 0)
+            {
+                foreach (var user in usersWithProfilePicture)
+                {
+                    user.ProfilePicture = null;
+                }
+                _db.SaveChanges();
+            }
+            else
+            {
+                return RedirectToAction("DisplayUsers", "Admin", TempData["msg"] = "No photo");
+            }    
+            return RedirectToAction("DisplayUsers", "Admin", TempData["msg"] = "Profile photos have been deleted");
+        }
     }
+    
 }
