@@ -1,0 +1,90 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /*min-height: 100vh;*/
+}
+
+.registration {
+    width: 300px;
+    /*height: 680px;*/
+    background: transparent;
+    /* background: red;*/
+    /*width: 300px;
+    height: 700px;*/
+    border-radius: 15px;
+    padding: 5px 10px;
+    border: 2px solid rgba(153, 255, 153, .6);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+}
+
+    .registration h1 {
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .registration .input-box {
+        width: 100%;
+        height: 30px;
+        margin: 40px 0;
+    }
+
+/*.registration:where(.input-box, .select-box) {
+        width: 300px;
+        height: 50px;
+        margin: 40px 0;
+    }*/
+
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 128, 255, 0.5);
+    border: none;
+    outline: none;
+    border: 2px solid rgba(255,255,255, .3);
+    border-radius: 50px;
+    font-size: 20px;
+    padding: 20px 45px 20px 20px;
+    /*margin-top: 20px;*/
+}
+
+    /*.registration .select-box {
+    width: 100%;
+    height: 30px;    
+    padding-left:20px 0;
+}*/
+
+    .input-box input::placeholder {
+        color: #fff;
+    }
+
+.registration .btn {
+    width: 100%;
+    height: 45px;
+    background: rgba(255, 165, 0, 0.7);
+    border: none;
+    outline: none;
+    border-radius: 50px;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.registration .login-link {
+    color: #000000;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.login-link a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #000000;
+}
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+/*.select-box select{
+
+}*/

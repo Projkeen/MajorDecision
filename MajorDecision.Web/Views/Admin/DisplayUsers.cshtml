@@ -1,5 +1,8 @@
 ﻿@* @model List<ApplicationUser> *@
+@* @using System.Security.Claims
+@using Microsoft.AspNetCore.Identity *@
 @model List<MajorDecision.Web.Models.UserViewModel>
+@* @inject UserManager<ApplicationUser> userManager *@
 
 @{
     ViewBag.Title = "Admin's page";
@@ -30,13 +33,17 @@
         </thead>
         <tbody style="font-size:larger">
             @foreach (var m in Model)
-            {
+            {                
                 <tr>
                     <td>@m.FirstName </td>
                     <td>@m.Username</td>
                     <td>@m.Email</td>
                     @* <td>@m.Roles.ToArray().ToString()</td> *@
-                    <td>@m.Roles.ToString().FirstOrDefault()</td>
+                    <td>@foreach(var role in m.Roles)
+                        {          
+                            <span>@role</span>
+                        }
+                    </td>
                     @* <td>@foreach (string role in m.Roles)
                         {
                             <p>@role.FirstOrDefault()</p>

@@ -2,80 +2,79 @@
 @{
     //Layout = null;
 }
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["msg"]
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
+            @* <span>&times;</span> *@
+        </button>
 
+    </div>
+}
 <!DOCTYPE html>
 
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/css/registration.css" asp-append-version="true" />
     <title>Registration</title>
 </head>
 <body>
     <div class="container">
-        <div class="md-6">
-            <form asp-action="Registration" method="post">
-                @if (TempData["msg"] != null)
-                {
-                    <div class="alert alert-info" style="text-align:center">
-                        @TempData["msg"]
-                        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
-                            @* <span>&times;</span> *@
-                        </button>
-
-                    </div>
-                }
-                <h2>Registration</h2>
-                <div class="form-label">
-                    <label class="form-label">FirstName</label>
-                    <input type="text" class="form-control" style="width:250px" asp-for="FirstName" />
-                    <span class="text-danger" asp-validation-for="FirstName"></span>
-                </div>
-
-                <div class="form-label">
-                    <label class="form-label">Username</label>
-                    <input type="text" class="form-control" style="width:250px" asp-for="Username" />
-                    <span class="text-danger" asp-validation-for="Username"></span>
-                </div>
-
-                <div class="form-label">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" style="width:250px" asp-for="Email" />
-                    <span class="text-danger" asp-validation-for="Email"></span>
-                </div>
-
-              @*   <div class="form-label">
+        <form asp-action="Registration" method="post" class="registration">
+            <h1>Registration</h1>
+            <div class="input-box">
+                @*  <label class="form-label">FirstName</label> *@
+                <input type="text" asp-for="FirstName" placeholder="First name" autocomplete="off"/>
+                <span class="text-danger" asp-validation-for="FirstName"></span>
+            </div>
+            <div class="input-box">
+                @*  <label class="form-label">Username</label> *@
+                <input type="text" asp-for="Username" placeholder="Username" autocomplete="off"/>
+                <span class="text-danger" asp-validation-for="Username"></span>
+            </div>
+            <div class="input-box">
+                @* <label class="form-label">Email</label> *@
+                <input type="email" asp-for="Email" placeholder="Email" autocomplete="off"/>
+                <span class="text-danger" asp-validation-for="Email"></span>
+            </div>
+            @*   <div class="form-label">
                     <label class="form-label">Permission</label>
                     <input type="password" class="form-control" style="width:250px" asp-for="SecretPassword" />
                     <span class="text-danger" asp-validation-for="SecretPassword"></span>
                 </div> *@
 
-                <div class="form-label">
-                    <label class="form-label">Sign Up as:</label>
-                    <select id="addInputFieldForAdminPerm">
-                        <option> User</option>
-                        <option value="Adm"> Admin</option>
-                    </select>
-                    <br />
-                    <input type="password" asp-for="SecretPassword" class="form-control" style="width:250px; display:none" id="additionalInput" ; placeholder="You must enter the secret code" />
-                </div>                
+            <div class="input-box">
+                Sign Up as:
+                <select id="addInputFieldForAdminPerm">
+                    <option> User</option>
+                    <option value="Adm"> Admin</option>
+                </select>
+            </div>
+            <div class="input-box">
+                @* <br /> *@
+                <input type="password" asp-for="SecretPassword" style="display:none" id="additionalInput" placeholder="Enter the secret code" />
+            </div>
 
-                <div class="form-label">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" style="width:250px" asp-for="Password" />
-                    <span class="text-danger" asp-validation-for="Password"></span>
-                </div>
+            <div class="input-box">
+                @*  <label class="form-label">Password</label> *@
+                <input type="password" asp-for="Password" placeholder="Password" />
+                <span class="text-danger" asp-validation-for="Password"></span>
+            </div>
+            <div class="input-box">
+                @*  <label class="form-label">Password Confirm</label> *@
+                <input type="password" asp-for="PasswordConfirm" placeholder="Confirm password" />
+                <span class="text-danger" asp-validation-for="PasswordConfirm"></span>
+            </div>
+            <button type="submit" class="btn">Sign Up</button>
+            <div class="login-link">
+                <p>Already have an account? <a href="/Authentication/Login">Login</a></p>
+            </div>
+           @*  <a class="" href="/Authentication/Login">Log In</a> *@
 
-                <div class="form-label">
-                    <label class="form-label">Password Confirm</label>
-                    <input type="password" class="form-control" style="width:250px" asp-for="PasswordConfirm" />
-                    <span class="text-danger" asp-validation-for="PasswordConfirm"></span>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">Confirm</button>
-                <a class="btn btn-secondary" href="/Authentication/Login">Log In</a>
+        </form>
 
-            </form>
-        </div>
 
     </div>
 </body>

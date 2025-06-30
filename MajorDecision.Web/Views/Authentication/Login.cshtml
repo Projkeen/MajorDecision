@@ -2,47 +2,47 @@
 @{
     //Layout = null;
 }
-
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["msg"]
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
+            @*<span>&times;</span>*@
+        </button>
+    </div>
+}
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
     <title>Login</title>
 </head>
-<body>
-    <form asp-action="Login" method="post">
-        @if (TempData["msg"] != null)
-        {
-            <div class="alert alert-info" style="text-align:center">
-                @TempData["msg"]
-                <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
-                    @*<span>&times;</span>*@
-                </button>
-            </div>
-        }
-        <h1>Login form</h1>
-        <div class="container">
-            <div class="mb-3">
-                <label asp-for="Username" class="form-label">Username</label>
-                <input type="text" class="form-control" style="width:250px" asp-for="Username" />
+
+<body>   
+    <div class="container">   
+        <form asp-action="Login" method="post" class="login">           
+            <h1>Login</h1>           
+            <div class="input-box">
+               @*  <label asp-for="Username">Username</label> *@
+                <input type="text" asp-for="Username" placeholder="Username" autocomplete="off"/>
                 <div class="msg">
                     <span asp-validation-for="Username"></span>
                 </div>
             </div>
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label">Password</label>
-                <input type="password" class="form-control" style="width:250px" asp-for="Password" />
+            <div class="input-box">
+               @*  <label asp-for="Password" class="form-label">Password</label> *@
+                <input type="password" asp-for="Password" placeholder="Password" />
                 <div class="msg">
                     <span asp-validation-for="Password"></span>
                 </div>
-            </div>           
-            <button type="submit" class="btn btn-primary">Log In</button>
-            <a href="/Authentication/Registration" class="btn btn-secondary">Registration</a>
-
-        </div>
-
-
-    </form>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <div class="register-link">
+                <p>Don't have an account? <a href="/Authentication/Registration">Register</a></p>
+            </div>
+            @* <a href="/Authentication/Registration" class="btn btn-secondary">Register</a> *@
+        </form>
+    </div>
 </body>
 </html>
