@@ -38,7 +38,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             }
             
             //await _userManager.AddToRoleAsync(user, "Admin");
-            var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, true);
+            var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, true);
             if (signInResult.Succeeded)
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -81,7 +81,6 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 status.Message = "Error on loggin in";
                 return status;
             }
-
         }
 
         public async Task LogoutAsync()
@@ -139,8 +138,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             if (await _roleManager.RoleExistsAsync(model.Role))
             {
                 await _userManager.AddToRoleAsync(user, model.Role);
-            }
-            
+            }            
                 
             status.StatusCode = 1;
             status.Message = "User has registered successfully";

@@ -1,6 +1,7 @@
-﻿@model MajorDecision.Web.Models.Authentication.Login
+﻿@model MajorDecision.Web.Models.Authentication.Login;
 @{
     //Layout = null;
+    ViewData["Title"] = "Login";
 }
 @if (TempData["msg"] != null)
 {
@@ -18,11 +19,10 @@
     <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
     <title>Login</title>
 </head>
-
 <body>   
     <div class="container">   
         <form asp-action="Login" method="post" class="login">           
-            <h1>Login</h1>           
+            <h1>Login</h1>
             <div class="input-box">
                @*  <label asp-for="Username">Username</label> *@
                 <input type="text" asp-for="Username" placeholder="Username" autocomplete="off"/>
@@ -36,7 +36,13 @@
                 <div class="msg">
                     <span asp-validation-for="Password"></span>
                 </div>
-            </div>
+            </div>           
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input asp-for="RememberMe" class="form-check-input"/>
+                    @Html.DisplayNameFor(a=>a.RememberMe)
+                </label>
+            </div>           
             <button type="submit" class="btn">Login</button>
             <div class="register-link">
                 <p>Don't have an account? <a href="/Authentication/Registration">Register</a></p>
