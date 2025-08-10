@@ -22,65 +22,103 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
         public async Task<Status> LoginAsync(Login model)
         {
             var status = new Status();
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user == null)
+            var user = await _userManager.FindByNameAsync(model.UsernameOrEmail);
+            var email = await _userManager.FindByEmailAsync(model.UsernameOrEmail);
+            if (user != null)
             {
-                status.StatusCode = 0;
-                status.Message = "Username is not found";
-                return status;
-            }
-
-            if (!await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                status.StatusCode = 0;
-                status.Message = "Invalid password";
-                return status;
-            }
-            
-            //await _userManager.AddToRoleAsync(user, "Admin");
-            var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, true);
-            if (signInResult.Succeeded)
-            {
-                var userRoles = await _userManager.GetRolesAsync(user);
-                var authClaims = new List<Claim>
+                var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, true);
+                if (signInResult.Succeeded)
                 {
+                    var userRoles = await _userManager.GetRolesAsync(user);
+                    var authClaims = new List<Claim>
+                    {
                     new Claim(ClaimTypes.Name, user.UserName)
-                };
-                foreach(var  userRole in userRoles)
-                {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    };
+                    foreach (var userRole in userRoles)
+                    {
+                        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    }
+
+                    //if (!await _roleManager.RoleExistsAsync("User"))
+                    //    await _roleManager.CreateAsync(new IdentityRole
+                    //    {
+                    //        Name = "User",
+                    //        NormalizedName = "USER",
+                    //        Id = Guid.NewGuid().ToString(),
+                    //        ConcurrencyStamp = Guid.NewGuid().ToString()
+                    //    });
+                    //if (await _roleManager.RoleExistsAsync("User"))
+                    //{
+                    //    await _userManager.AddToRoleAsync(user,"User");
+                    //}
+
+                    status.StatusCode = 1;
+                    status.Message = "Logged successfully";
+                    return status;
                 }
-
-                //if (!await _roleManager.RoleExistsAsync("User"))
-                //    await _roleManager.CreateAsync(new IdentityRole
-                //    {
-                //        Name = "User",
-                //        NormalizedName = "USER",
-                //        Id = Guid.NewGuid().ToString(),
-                //        ConcurrencyStamp = Guid.NewGuid().ToString()
-                //    });
-                //if (await _roleManager.RoleExistsAsync("User"))
-                //{
-                //    await _userManager.AddToRoleAsync(user,"User");
-                //}
-
-
-                status.StatusCode = 1;
-                status.Message = "Logged successfully";
-                return status;
+                else if (signInResult.IsLockedOut)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "User Locked out";
+                    return status;
+                }
+                else if (!await _userManager.CheckPasswordAsync(user, model.Password))
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Invalid password";
+                    return status;
+                }                    
+                else
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Error on loggin in";
+                    return status;
+                }                
             }
-            else if (signInResult.IsLockedOut)
+            else if (email != null)
             {
-                status.StatusCode = 0;
-                status.Message = "User Locked out";
-                return status;
+                var signInResult = await _signInManager.PasswordSignInAsync(email, model.Password, model.RememberMe, true);
+                if (signInResult.Succeeded)
+                {
+                    var userRoles = await _userManager.GetRolesAsync(email);
+                    var authClaims = new List<Claim>
+                    {
+                    new Claim(ClaimTypes.Name, email.UserName)
+                    };
+                    foreach (var userRole in userRoles)
+                    {
+                        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    }        
+                    status.StatusCode = 1;
+                    status.Message = "Logged successfully";
+                    return status;
+                }
+                else if (signInResult.IsLockedOut)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "User Locked out";
+                    return status;
+                }
+                else if (!await _userManager.CheckPasswordAsync(email, model.Password))
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Invalid password";
+                    return status;
+                }
+                else
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Error on loggin in";
+                    return status;
+                }
             }
             else
             {
                 status.StatusCode = 0;
-                status.Message = "Error on loggin in";
+                status.Message = "Username is not found";
                 return status;
-            }
+            }       
+            //await _userManager.AddToRoleAsync(user, "Admin");
         }
 
         public async Task LogoutAsync()
@@ -89,16 +127,22 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
         }
 
         public async Task<Status> RegistrationAsync(Registration model)
-        {
-            
+        {            
             var status = new Status();
             var userExists = await _userManager.FindByNameAsync(model.Username);
+            var checkEmail = await _userManager.FindByEmailAsync(model.Email);
             if (userExists != null)
             {
                 status.StatusCode = 0;
                 status.Message = "Error! User already created, create new username";
                 return status;
-            }           
+            }
+            if (checkEmail != null)
+            {
+                status.StatusCode = 0;
+                status.Message = "Error! Email already using";
+                return status;
+            }
 
             ApplicationUser user = new ApplicationUser
             {                

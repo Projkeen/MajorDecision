@@ -5,7 +5,7 @@ namespace MajorDecision.Web.Models.Authentication
     public class Login
     {
         [Required]
-        public string Username { get; set; }
+        public string UsernameOrEmail { get; set; }    
         [Required]
         public string Password { get; set; }
         [Display(Name ="Remember me?")]

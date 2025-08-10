@@ -25,9 +25,9 @@
             <h1>Login</h1>
             <div class="input-box">
                @*  <label asp-for="Username">Username</label> *@
-                <input type="text" asp-for="Username" placeholder="Username" autocomplete="off"/>
+                <input type="text" asp-for="UsernameOrEmail" placeholder="Username or Email" autocomplete="off"/>
                 <div class="msg">
-                    <span asp-validation-for="Username"></span>
+                    <span asp-validation-for="UsernameOrEmail"></span>
                 </div>
             </div>
             <div class="input-box">
