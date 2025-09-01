@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Collections.Immutable;
 using System.Data;
+using System.Linq;
 using System.Reflection.Metadata;
 using System.Security.Claims;
 
@@ -33,15 +34,18 @@ namespace MajorDecision.Web.Controllers
         {
             List<UserViewModel> userViewModels = new List<UserViewModel>();
             var currentUser = await _userManager.GetUserAsync(User);
+            
             var users = await _db.Users.Where(u => u.Id != currentUser.Id).ToListAsync();
             //var model=new UserViewModel
             foreach (var user in users)
             {
+                var roles = await _userManager.GetRolesAsync(user);
                 UserViewModel model = new UserViewModel();
                 model.Id = user.Id;
                 model.Username = user.UserName;
                 model.FirstName = user.Name;
-                model.Email = user.Email;
+                model.Email = user.Email;                
+                model.Roles = roles.ToList();
                 userViewModels.Add(model);
             }
             return View(userViewModels);
