@@ -18,62 +18,72 @@
 
     </div>
 }
-<form asp-action="ChangeUserRole" method="post">
 
-    <table class="col-9" style="text-align:center" width="100%">
-        <thead>
+<table class="col-9" style="text-align:center" width="100%">
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Manage</th>
+            <th>Info</th>
+        </tr>
+    </thead>
+    <tbody style="font-size:larger">
+        @foreach (var m in Model)
+        {
             <tr>
-                <th>Name</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Manage</th>
-                <th>Info</th>
-            </tr>
-        </thead>
-        <tbody style="font-size:larger">
-            @foreach (var m in Model)
-            {                
-                <tr>
-                    <td>@m.FirstName </td>
-                    <td>@m.Username</td>
-                    <td>@m.Email</td>
-                    @* <td>@m.Roles.ToArray().ToString()</td> *@
-                    <td>@foreach(var role in m.Roles)
-                        {          
-                            <span>@role</span>
-                        }
-                    </td>
-                    @* <td>@foreach (string role in m.Roles)
+                <td>
+                    @if (!string.IsNullOrEmpty(m.ProfilePictureUrl))
+                    {
+                        <img src="~/Images/profileImages/@m.ProfilePictureUrl" style="width: 100px; height: 100px; border-radius: 50%;" />
+                    }
+                    else
+                    {
+                        <img src="~/Images/NoImage.png" style="width: 100px; height: 100px; border-radius: 50%;" />
+                    }
+                </td>
+                <td>@m.FirstName </td>
+                <td>@m.Username</td>
+                <td>@m.Email</td>
+                @* <td>@m.Roles.ToArray().ToString()</td> *@
+                <td>
+                    @foreach (var role in m.Roles)
+                    {
+                        <span>@role</span>
+                    }
+                </td>
+                @* <td>@foreach (string role in m.Roles)
                         {
                             <p>@role.FirstOrDefault()</p>
                         }
                     </td> *@
-                    <td>
-                        <span>
-                            <a class="btn btn-secondary" asp-controller="Admin" asp-action="ChangeUserRole" asp-route-id="@m.Id">
-                                Change User Role
-                            </a>
-                        </span>
-                    </td>
-                    <td>
-                        <div class="">
-                            <a class="btn btn-secondary" asp-controller="Admin" asp-action="UserInfo" asp-route-id="@m.Id">
-                                Info page
-                            </a>
-                            @*  <a asp-page="/Admin/UserInfo" asp-route-id="@m.Id" class="btn btn-primary mx-2">
+                <td>
+                    <span>
+                        <a class="btn btn-secondary" asp-controller="Admin" asp-action="ChangeUserRole" asp-route-id="@m.Id">
+                            Change User Role
+                        </a>
+                    </span>
+                </td>
+                <td>
+                    <div class="">
+                        <a class="btn btn-secondary" asp-controller="Admin" asp-action="UserInfo" asp-route-id="@m.Id">
+                            Info page
+                        </a>
+                        @*  <a asp-page="/Admin/UserInfo" asp-route-id="@m.Id" class="btn btn-primary mx-2">
                         <i class="">Info</i>
                         </a> *@
-                        </div>
-                        <button type="button" class="btn btn-secondary" asp-route-id="@m.Id" data-bs-toggle="modal" data-bs-target="#userInfo">
-                            Info popup
-                        </button>
-                    </td>
-                </tr>
-            }                 
-        </tbody>
-    </table>
-</form>
+                    </div>
+                    <button type="button" class="btn btn-secondary" asp-route-id="@m.Id" data-bs-toggle="modal" data-bs-target="#userInfo">
+                        Info popup
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 </br>
 <div class="modal fade" id="userInfo" aria-labelledby="infoUserLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -109,7 +119,7 @@
         <input type="submit" value="Clear data without userId" class="btn btn-danger" />
     </form>
 </div>
-<br/>
+<br />
 <div class="" role="">
     <form asp-action="ClearAllProfilePictures" method="get">
         <input type="submit" value="Clear all user photo" class="btn btn-danger" />

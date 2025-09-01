@@ -46,6 +46,7 @@ namespace MajorDecision.Web.Controllers
                 model.FirstName = user.Name;
                 model.Email = user.Email;                
                 model.Roles = roles.ToList();
+                model.ProfilePictureUrl = user.ProfilePicture;
                 userViewModels.Add(model);
             }
             return View(userViewModels);

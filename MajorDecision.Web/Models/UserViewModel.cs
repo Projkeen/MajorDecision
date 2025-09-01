@@ -17,6 +17,7 @@ namespace MajorDecision.Web.Models
         public string? Email { get; set; }
         [Required]
         public string Username { get; set; }
+        public string ProfilePictureUrl { get; set; }
         [Required]
         public IFormFile? Photo { get; set; }
         public List<string> Claims { get; set; }
