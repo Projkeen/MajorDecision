@@ -1,10 +1,11 @@
-﻿@model IEnumerable<Decision>
+﻿@model PaginatedList<DecisionVM>
 @using Microsoft.AspNetCore.Identity
+@using MajorDecision.Web.Models;
 
 @{
     ViewData["Title"] = "AnswersHistory";
     //var alertMessage = TempData["AlertMessage"]?.ToString();
-    var i = 1;
+    var number = 1;
 }
 
 @if (TempData["AlertMessage"] != null)
@@ -24,7 +25,7 @@
         </div>
 
         <div class="col-4">
-            <form asp-action="SearchHistory" method="get">
+            <form asp-action="AnswersHistory" asp-controller="Decision" method="get">
                 <div class="w-100 btn-group" role="group">
                     <input type="text" class="form-control" name="searchString" placeholder="Search in history" autocomplete="off" @*value="@ViewData["Filter"]"*@ />
                     <input type="submit" value="Search" class="btn btn-secondary" style="width:50%" />
@@ -34,7 +35,7 @@
         </div>
         <div class="col-4">
             <form asp-action="DeleteAllHistory" method="post">
-                @if (Model.Count() > 0)
+                @if (Model.Items.Count() > 0)
                 {
                     <span id="confirmDeleteSpan" style="display:none">
                         <span>Are you sure?</span>
@@ -53,16 +54,48 @@
                 <input type="submit" value="Download logs" class="btn btn-secondary" />
             </form>
         </div>
+        <div class="col-md-4">
+            <nav>
+                <ul class="pagination justify-content-end">
+                    <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-route-pageNumber="1">
+                            <span>◄◄</span>
+                        </a>
+                    </li>
+                    <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                        <a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)">
+                            <span>◄</span>
+                        </a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(Model.PageIndex == i ? "active" : "")">
+                            <a class="page-link" asp-route-pageNumber="@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                        <a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)">
+                            <span>►</span>
+                        </a>
+                    </li>
+                    <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-route-pageNumber="@(Model.TotalPages)">
+                            <span>►►</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 <br />
 
-@if (Model.Count() > 0)
+@if (Model.Items.Count() > 0)
 {
     <form asp-action="DeleteHistory" method="post">
         <input type="submit" value="Delete selected" class="btn btn-secondary" />
 
-        <table class="answerstable" style="text-align:center" width="100%">
+        <table class="answerstable" style="text-align:center; margin-top:15px" width="100%">
             <thead>
                 <tr>
                     <th>Select</th>
@@ -74,24 +107,25 @@
                 </tr>
             </thead>
             <tbody style="font-size:larger">
-                @foreach (var item in Model)
+                @foreach (var item in Model.Items)
                 {
                     <tr>
                         <td>
                             <input type="checkbox" name="decisionIdsToDelete" id="decisionIdsToDelete" value="@item.Id" />
                         </td>
-                        <td>@i</td>
+                        <td>@number</td>
                         <td>@item.Question</td>
                         <td>@item.Answer</td>
                         <td>@item.DateOfQuestion</td>
                         <td><a class="btn btn-outline-secondary" asp-controller="DiscussionPage" asp-action="CreatePage" asp-route-id="@item.Id">Publish</a></td>
                     </tr>
-                    { i++; }
+                    { number++; }
                 }
             </tbody>
-        </table>
+        </table>     
     </form>
 }
+
 else
 {
     <p class="text-center">
@@ -103,7 +137,6 @@ else
             <a class="btn btn-secondary" style="width:250px" asp-area="" asp-controller="Decision" asp-action="Index">Try again</a>
         </b>
     </p>
-
 }
 
 

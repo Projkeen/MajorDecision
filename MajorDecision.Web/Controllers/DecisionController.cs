@@ -85,28 +85,40 @@ namespace MajorDecision.Web.Controllers
             //return View();
         }
 
-        public IActionResult AnswersHistory()
+        public async Task <IActionResult> AnswersHistory(int pageNumber, string searchString)
         {
             //ViewBag.Id = id;
             //Decision? decisionFromDb = _db.Decisions.FirstOrDefault(u=>u.Id==id);
             //List<Decision> decisions = _db.Decisions.ToList();
             //List<Decision> decisions = _db.Decisions.Single(i => i.Id == 0);
-            //return View(decisionFromDb);
+            //return View(decisionFromDb);  
             //List<Decision> answer = _db.Decisions.SingleOrDefault();
             //ViewData["Filter"] = searchString;
             if (User.Identity.IsAuthenticated)
             {
                 var user = HttpContext.User;
-                var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
-                return View(decisions.ToList());
+                //var decisions =  await _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value).ToListAsync();
+                var decisions = _decision.GetAllAsync();
+                var descDecisions = decisions.OrderByDescending(x => x.DateOfQuestion).Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
+                if (!String.IsNullOrEmpty(searchString))
+                {
+                    descDecisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString().Contains(searchString));
+                }
+                if (pageNumber < 1)
+                {
+                    pageNumber = 1;
+                }
+                int pageSize = 13;                
+                return View(await PaginatedList<DecisionVM>.CreateAsync(descDecisions, pageNumber, pageSize));
             }
             else
             {
                 TempData["msg"] = "You must be loggin in";
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication"); 
             }
         }
 
+        //method not using anymore
         public IActionResult SearchHistory(string searchString)
         {
             var user = HttpContext.User;
@@ -115,7 +127,7 @@ namespace MajorDecision.Web.Controllers
             {
                 decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString().Contains(searchString));
             }
-            return View("AnswersHistory", decisions.ToList());
+            return View("AnswersHistory", decisions.ToList());            
         }
 
         //public IActionResult Answer()
@@ -170,7 +182,7 @@ namespace MajorDecision.Web.Controllers
         {
             var user = HttpContext.User;
             var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
-            if (decisions.Count() !=0)
+            if (decisions.Count() != 0)
             {
                 string[] dataShows = new string[] { "User Question Answer Date Of Question" };
                 //var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -199,7 +211,22 @@ namespace MajorDecision.Web.Controllers
                 TempData["AlertMessage"] = "No data";
                 return RedirectToAction("AnswersHistory");
             }
-            
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LastQuestions()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var questions = await _db.Decisions.OrderByDescending(x => x.DateOfQuestion).Take(20).Select(p=>p.Question).ToListAsync();  
+                return View(questions);
+            }
+            else
+            {
+                TempData["msg"] = "You must be loggin in";
+                return RedirectToAction("Login", "Authentication");
+            }
         }
     }
 }

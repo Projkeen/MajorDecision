@@ -1,5 +1,7 @@
 ﻿using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Security.Claims;
 
@@ -7,12 +9,13 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
 {
     public class DecisionService : IDecision
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ApplicationDbContext _db;        
 
         public DecisionService(ApplicationDbContext db)
         {
-            _db = db;
+            _db = db;            
         }
+        
         public async Task<Decision> ShowAnswerByFirstMethodAsync(Decision decision)
         {
             //int secretNumber = decision.SecretMethod();
@@ -55,7 +58,21 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             decision.Answer = randomAnswerFromDb.ToString();
             decision.DateOfQuestion = DateTime.Now;
             return decision;
+        }
 
+        public IQueryable<DecisionVM> GetAllAsync()
+        {            
+            var decisions = _db.Decisions.Select(d => new DecisionVM
+            {
+                Id=d.Id,
+                Question=d.Question,
+                Answer=d.Answer,
+                DateOfQuestion=d.DateOfQuestion,
+                ApplicationUser=d.ApplicationUser,
+                ApplicationUserId=d.ApplicationUserId,
+            });
+
+            return decisions;
         }
     }
 }

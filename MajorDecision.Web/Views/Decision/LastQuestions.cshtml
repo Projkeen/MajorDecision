@@ -1,0 +1,36 @@
+﻿@model List<string>
+
+@{
+    ViewData["Title"] = "Last Questions";
+    //var alertMessage = TempData["AlertMessage"]?.ToString();
+    var i = 1;
+}
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-info" style="text-align:center">
+        @TempData["msg"]
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert" style="float:right">
+            @*<span>&times;</span>*@
+        </button>
+
+    </div>
+}
+
+<table class="question" style="text-align:center;margin-top:50px" width="100%">
+    <thead>
+        <tr>           
+            <th>№</th>
+            <th>Questions</th>           
+        </tr>
+    </thead>
+    <tbody style="font-size:larger">
+        @foreach (var question in Model)
+        {
+            <tr>               
+                <td>@i</td>
+                <td>@question</td>                
+            </tr>
+            { i++; }
+        }
+    </tbody>
+</table>

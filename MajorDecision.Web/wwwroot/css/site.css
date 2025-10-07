@@ -19,9 +19,12 @@ html {
 
 body {
     margin-bottom: 60px;
-    background-image: url('../images/11083-1200x600.jpg');
-    background-repeat: no-repeat;
+    /*background-image: url('../images/11083-1200x600.jpg');
+    background-repeat: no-repeat;*/
     background-size: cover;
+    background-color: #003153;
+    color: #fff;
+    /*overflow: hidden;*/
 }
 
 #loading {

@@ -15,9 +15,9 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light @*bg-white*@ border-bottom box-shadow mb-3" style="background-color:gray">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light @*bg-white*@ /*border-bottom box-shadow mb-3*/" style="background-color:gray">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MajorDecision.Web</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MajorDecision</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -43,6 +43,9 @@
                         </li>*@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="DiscussionPage" asp-action="DisplayPages">Discussion</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Decision" asp-action="LastQuestions">Last Questions</a>
                         </li>
                     </ul>
                 </div>                
@@ -97,7 +100,7 @@
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="text-center" @*"container"*@>
+        <div class="text-center" @* "container" *@>
             &copy; 2023 - MajorDecision.Web by Projkeen - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
