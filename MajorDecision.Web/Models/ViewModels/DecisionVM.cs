@@ -1,4 +1,6 @@
-﻿namespace MajorDecision.Web.Models
+﻿using MajorDecision.Web.Models.Entities;
+
+namespace MajorDecision.Web.Models.ViewModels
 {
     public class DecisionVM
     {

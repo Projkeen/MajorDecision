@@ -1,4 +1,4 @@
-﻿using MajorDecision.Web.Models.Authentication;
+﻿using MajorDecision.Web.Models.ViewModels.Authentication;
 
 namespace MajorDecision.Web.Data.Repositories.Abstract
 {

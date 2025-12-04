@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MajorDecision.Web.Models.Authentication
+namespace MajorDecision.Web.Models.ViewModels.Authentication
 {
     public class Registration
     {

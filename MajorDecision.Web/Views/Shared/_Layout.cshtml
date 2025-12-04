@@ -1,6 +1,10 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using MajorDecision.Web.Data
+@using MajorDecision.Web.Models.Entities
+@using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
 @inject UserManager<ApplicationUser> userManager
+@inject ApplicationDbContext context
 
 <!DOCTYPE html>
 <html lang="en">
@@ -47,24 +51,59 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Decision" asp-action="LastQuestions">Last Questions</a>
                         </li>
+                        @*  @if (User.Identity.IsAuthenticated)
+                        {
+                            var user = await userManager.GetUserAsync(User);
+                            var friends = context.Friends.Where(x => x.SenderId == user.Id || x.ReceiverId == user.Id);
+                            if (friends != null)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="GetFriendsList">Friends</a>
+                                </li>
+                            }
+                        } *@
+
                     </ul>
-                </div>                
+                </div>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end" style="margin-right:100px">
                     <ul class="navbar-nav flex">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            var user = await userManager.GetUserAsync(User);                           
+                            <li>
+                                <a class="nav-link text-dark" style="color:yellowgreen;" asp-area="" asp-controller="Profile" asp-action="Notifications">&#128276;</a>
+                            </li>
+                            ApplicationUser userWithNotifications = null;
+                            int unreadNotificationsCount = 0;
+                            var user = await userManager.GetUserAsync(User);
+                            var friends = context.Friends.Where(x => (x.SenderId == user.Id || x.ReceiverId == user.Id) && x.Statuses == AppUserFriendship.Status.Accepted);
+                            @if (user != null)
+                            {
+                                unreadNotificationsCount = await context.Notifications.Where(n => n.ReceiverId == user.Id && !n.IsRead).CountAsync();
+                                if (unreadNotificationsCount > 0)
+                                {
+                                    <li>
+                                        <p style="color:red">(@unreadNotificationsCount.ToString())</p>
+                                    </li>
+                                }
+                            }
                             <li class="nav-item dropdown justify-content-end">
-                               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     @if (user.ProfilePicture != null)
                                     {
                                         <img src="~/images/profileImages/@user.ProfilePicture" style="width: 30px; height: 30px; border-radius: 50%;" />
-                                    }    
-                                   @User.Identity.Name</a>                                
+                                    }
+                                    @User.Identity.Name
+                                </a>
                                 <ul class="dropdown-menu">
                                     <li class="nav-item">
                                         <a class="dropdown-item" asp-area="" asp-controller="Decision" asp-action="AnswersHistory">History</a>
                                     </li>
+                                    @if (friends.Count() > 0)
+                                    {
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="GetFriendsList">Friends</a>
+                                        </li>
+                                    }
                                     <li class="nav-item">
                                         <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="ManageProfile">Settings</a>
                                     </li>
@@ -78,7 +117,7 @@
                                         <a class="dropdown-item" asp-area="" asp-controller="Authentication" asp-action="Logout">Sign Out</a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
-                                </ul>                                
+                                </ul>
                             </li>
                         }
                         else

@@ -1,7 +1,7 @@
 using MajorDecision.Web.Data;
 using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Data.Repositories.Implementation;
-using MajorDecision.Web.Models;
+using MajorDecision.Web.Models.Entities;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options=>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped); 
 
 //string cs = "Server=(localdb)\\\\MSSQLLocalDB;Database=MajorDecision;Trusted_Connection=true;TrustServerCertificate=True";
 //builder.Services.AddDbContext<ApplicationDbContext>(s=> s.UseSqlServer(cs));
@@ -22,7 +22,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options=>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Authentication/Login");
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>().AddScoped<IDecision, DecisionService>().AddScoped<IPageService, PageService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>().AddScoped<IDecision, DecisionService>()
+                .AddScoped<IPageService, PageService>().AddScoped<INotificationService, NotificationService>();
 // Default Password settings.
 builder.Services.Configure<IdentityOptions>(options =>
 {

@@ -1,6 +1,7 @@
 ﻿using MajorDecision.Web.Data;
 using MajorDecision.Web.Data.Repositories.Abstract;
-using MajorDecision.Web.Models;
+using MajorDecision.Web.Models.Entities;
+using MajorDecision.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

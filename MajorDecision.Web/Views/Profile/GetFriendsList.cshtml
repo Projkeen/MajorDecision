@@ -1,0 +1,26 @@
+﻿@model List<MajorDecision.Web.Models.Entities.ApplicationUser>
+
+<table class="friends " style="text-align:center; margin-top: 50px" width="100%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Chat</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var friend in Model)
+        {
+            <tr>
+                <td width="40%">@friend.Name</td>
+                <td width="40%">@friend.UserName</td>
+                <td width="20%">
+                    @*  <div class="w-100 btn-group" role="group">
+                        <a asp-controller="Admin" asp-action="Manage" asp-route-id="@answers.Id" class="btn btn-outline-danger">Edit/Delete</a>
+                    </div> *@
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>

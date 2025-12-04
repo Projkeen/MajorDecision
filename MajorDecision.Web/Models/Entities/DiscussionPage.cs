@@ -1,4 +1,4 @@
-﻿namespace MajorDecision.Web.Models
+﻿namespace MajorDecision.Web.Models.Entities
 {
     public class DiscussionPage
     {

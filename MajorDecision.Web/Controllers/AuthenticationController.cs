@@ -1,6 +1,6 @@
 ﻿using Azure.Identity;
 using MajorDecision.Web.Data.Repositories.Abstract;
-using MajorDecision.Web.Models.Authentication;
+using MajorDecision.Web.Models.ViewModels.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

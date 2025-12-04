@@ -1,7 +1,9 @@
 ﻿using MajorDecision.Web.Data;
 using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Models;
-using MajorDecision.Web.Models.Authentication;
+using MajorDecision.Web.Models.Entities;
+using MajorDecision.Web.Models.ViewModels;
+using MajorDecision.Web.Models.ViewModels.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,13 +20,16 @@ namespace MajorDecision.Web.Controllers
         IWebHostEnvironment _hostingEnvironment;
         private readonly IAuthenticationService _service;
         private readonly ApplicationDbContext _db;
+        private readonly INotificationService _notifications;
 
-        public ProfileController(UserManager<ApplicationUser> userManager, IWebHostEnvironment hostingEnvironment, IAuthenticationService service, ApplicationDbContext db)
+        public ProfileController(UserManager<ApplicationUser> userManager, IWebHostEnvironment hostingEnvironment,
+                                IAuthenticationService service, ApplicationDbContext db, INotificationService notifications)
         {
             _userManager = userManager;
             _hostingEnvironment = hostingEnvironment;
             _service = service;
             _db = db;
+            _notifications = notifications;
         }
 
         //public void DisplayUser()
@@ -209,14 +214,19 @@ namespace MajorDecision.Web.Controllers
 
         public async Task<IActionResult> DeleteAccount(string str)
         {
-            var user = HttpContext.User;
+            var user = await _userManager.GetUserAsync(User);
+            //var user = HttpContext.User; FindFirst(ClaimTypes.NameIdentifier).Value);
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser != null & str == "Delete")
             {
-                var decisionPages = _db.DiscussionPages.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
-                var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var decisionPages = _db.DiscussionPages.Where(x => x.ApplicationUserId == user.Id);
+                var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.Id);
+                var friends = _db.Friends.Where(x => x.SenderId == user.Id || x.ReceiverId == user.Id);
+                var notifications = _db.Notifications.Where(x => x.SenderId == user.Id || x.ReceiverId == user.Id);
                 _db.Decisions.RemoveRange(decisions);
                 _db.DiscussionPages.RemoveRange(decisionPages);
+                _db.Friends.RemoveRange(friends);
+                _db.Notifications.RemoveRange(notifications);
                 IdentityResult result = await _userManager.DeleteAsync(currentUser);
                 if (result.Succeeded)
                 {
@@ -229,6 +239,132 @@ namespace MajorDecision.Web.Controllers
                 //}
             }
             return RedirectToAction("ManageProfile", TempData["msg"] = "Error");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Notifications()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var notifications = await _notifications.GetUnreadNotificationsForUserAsync(user.Id);
+            var notificationsVM = new List<NotificationVM>();
+            foreach (var notification in notifications)
+            {
+                var notificationVM = new NotificationVM
+                {
+                    Id = notification.Id,
+                    Message = notification.Message,
+                    SenderId = notification.SenderId,
+                    //SenderId = notif.UserId
+                    Type = notification.Type
+                };
+                notification.IsRead = true;
+                notificationsVM.Add(notificationVM);
+                //_db.Notifications.Update(n);
+                //await _db.SaveChangesAsync();
+            }
+
+            return View(notificationsVM);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptRequestToFriend(string senderId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            //var not = await _db.Notifications.FindAsync(id);
+            //var request = not.UserId;
+            //var a = await _db.Friends.First(currentUser);
+            if (string.IsNullOrEmpty(senderId) || string.IsNullOrEmpty(currentUser.Id))
+            {
+                TempData["AlertMessage"] = "Error";
+                return RedirectToAction("Notifications", "Profile");
+            }
+            var friendship = await _db.Friends.FirstOrDefaultAsync(f => f.SenderId == senderId && f.ReceiverId == currentUser.Id &&
+            f.Statuses == AppUserFriendship.Status.Pending);
+            if (friendship == null)
+            {
+                TempData["AlertMessage"] = "Error";
+                return RedirectToAction("Notifications", "Profile");
+            }
+            friendship.Statuses = AppUserFriendship.Status.Accepted;
+            friendship.BecameFriendsDate = DateTime.UtcNow;
+            var receiver = await _userManager.FindByIdAsync(currentUser.Id);
+            var notificationForSender = new Notification
+            {
+                ReceiverId = senderId,
+                SenderId = receiver.Id,
+                //UserId = receiver.Id,
+                Message = $"User {receiver.UserName} accepted your friend request",
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false,
+                Type = "Simple"
+            };
+            await _db.Notifications.AddAsync(notificationForSender);
+            var notificationToDelete = await _db.Notifications.FirstOrDefaultAsync(x => x.ReceiverId == currentUser.Id && x.SenderId == senderId);
+            if (notificationToDelete != null)
+            {
+                _db.Notifications.Remove(notificationToDelete);
+            }
+            await _db.SaveChangesAsync();
+            return RedirectToAction("Notifications", "Profile");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeclineRequestToFriend(string senderId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (string.IsNullOrEmpty(senderId) || string.IsNullOrEmpty(currentUser.Id))
+            {
+                TempData["AlertMessage"] = "Error";
+                return RedirectToAction("Notifications", "Profile");
+            }
+            var friendship = await _db.Friends.FirstOrDefaultAsync(f => f.SenderId == senderId && f.ReceiverId == currentUser.Id && f.Statuses == AppUserFriendship.Status.Pending);
+            if (friendship == null)
+            {
+                TempData["AlertMessage"] = "Error";
+                return RedirectToAction("Notifications", "Profile");
+            }
+
+            friendship.Statuses = AppUserFriendship.Status.Rejected;
+
+            var notificationToDelete = await _db.Notifications.FirstOrDefaultAsync(x => x.ReceiverId == currentUser.Id && x.SenderId == senderId);
+            if (notificationToDelete != null)
+            {
+                _db.Notifications.Remove(notificationToDelete);
+            }
+            await _db.SaveChangesAsync();
+            return RedirectToAction("Notifications", "Profile");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReadCheckConfirmNotification(int id)
+        {
+            var notificationToDelete = await _db.Notifications.FindAsync(id);
+            if (notificationToDelete != null)
+            {
+                _db.Notifications.Remove(notificationToDelete);
+                await _db.SaveChangesAsync();
+                return RedirectToAction("Notifications", "Profile");
+            }
+            else
+            {
+                TempData["AlertMessage"] = "Error";
+                return RedirectToAction("Notifications", "Profile");
+            }
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFriendsList()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            //var friendships = await _db.Friends.Where(f => f.Statuses == AppUserFriendship.Status.Accepted &&
+            //        (f.SenderId == currentUser.Id || f.ReceiverId == currentUser.Id)).ToListAsync();
+            var friends = await _db.Friends.Where(f => f.Statuses == AppUserFriendship.Status.Accepted &&
+               (f.SenderId == currentUser.Id || f.ReceiverId == currentUser.Id)).Select(f => f.SenderId == currentUser.Id ? f.Receiver : f.Sender).ToListAsync();
+            //var friendIds = friendships.Select(f => f.SenderId == currentUser.Id ? f.ReceiverId : f.SenderId).ToList();
+            //var friends = await _db.Users.Where(u => friendIds.Contains(u.Id)).ToListAsync();
+            return View(friends);
         }
     }
 }

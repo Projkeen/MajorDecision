@@ -1,6 +1,7 @@
 ﻿@using System.Security.Claims
+@using MajorDecision.Web.Models.Entities
 @using Microsoft.AspNetCore.Identity
-@model MajorDecision.Web.Models.DiscussionPage
+@model DiscussionPage
 @inject UserManager<ApplicationUser> userManager
 
 @{
@@ -27,7 +28,7 @@
 <div class="container" style="background-color:grey; margin-top:50px; margin-bottom:50px; padding:20px;border-radius: 10px;">
     @if (User.Identity.IsAuthenticated)
     {
-        var user = userManager.GetUserAsync(User);
+        var user = await userManager.GetUserAsync(User);
         var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
         if (currentUserId == Model.ApplicationUserId)
         {
@@ -43,7 +44,7 @@
                     }
                 </div>
                 <div class="col-sm">
-                    <h3>Answer: @Model.Answer</h3>                    
+                    <h3>Answer: @Model.Answer</h3>
                     <h3>Description: @Model.Description</h3>
                     <h4><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addDescription">Add description</button></h4>
                     <div>Posted by: @Model.ApplicationUser</div>
@@ -177,7 +178,7 @@
                     @*<a class="btn btn-secondary" href="/Profile/ManageProfile">Cancel</a>*@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
-            </form>            
+            </form>
         </div>
     </div>
 </div>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization.Infrastructure;
 using System.ComponentModel.DataAnnotations;
 
-namespace MajorDecision.Web.Models
+namespace MajorDecision.Web.Models.ViewModels
 {
     public class UserViewModel
     {

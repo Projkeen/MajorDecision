@@ -1,10 +1,10 @@
 ﻿using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Data;
-using MajorDecision.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using MajorDecision.Web.Models.Entities;
 
 namespace MajorDecision.Web.Controllers
 {

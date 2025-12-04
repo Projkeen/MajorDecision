@@ -1,4 +1,5 @@
 ﻿using MajorDecision.Web.Models;
+using MajorDecision.Web.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,8 @@ namespace MajorDecision.Web.Data
         public DbSet<Answers> Answers { get; set; }
         public DbSet<DiscussionPage> DiscussionPages { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<AppUserFriendship> Friends { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         //protected override void OnModelCreating(ModelBuilder builder)
         //{
@@ -50,6 +53,19 @@ namespace MajorDecision.Web.Data
                 new Answers { Id = 6, Answer = "..." }
                 );
 
+            builder.Entity<AppUserFriendship>(b =>
+            {
+                b.HasKey(f => new { f.SenderId, f.ReceiverId });
+                b.HasOne(fr => fr.Sender)
+                .WithMany() // WithMany(fr => fr.SentFriendRequests)
+                .HasForeignKey(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(fr => fr.Receiver)
+                .WithMany() //WithMany(fr => fr.ReceivedFriendRequests)
+                .HasForeignKey(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

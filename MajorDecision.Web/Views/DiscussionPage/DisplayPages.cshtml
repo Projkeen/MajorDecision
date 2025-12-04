@@ -1,6 +1,7 @@
 ﻿@using System.Security.Claims
+@using MajorDecision.Web.Models.Entities
 @using Microsoft.AspNetCore.Identity
-@model List<MajorDecision.Web.Models.DiscussionPage>
+@model List<DiscussionPage>
 @inject UserManager<ApplicationUser> userManager
 
 @{
@@ -22,7 +23,7 @@
     <div class="container" style="background-color:grey; margin-top:50px; margin-bottom:50px; padding:20px;border-radius: 10px">
         @if (User.Identity.IsAuthenticated)
         {
-            var user = userManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (currentUserId == mod.ApplicationUserId | User.IsInRole("Admin"))
             {
@@ -145,5 +146,13 @@
 }
 @if (!Model.Any())
 {
-    <p>No Pages</p>
+    <p class="text-center m-3">
+        <b>No pages</b>
+        <br />
+        <br />
+        <b>
+            @* <a class="nav-link text-dark" asp-area="" asp-controller="Decision" asp-action="Index">Try again</a> *@
+            <a class="btn btn-secondary" style="width:250px" asp-area="" asp-controller="Decision" asp-action="AnswersHistory">Start</a>
+        </b>
+    </p>
 }

@@ -1,8 +1,7 @@
-﻿using MajorDecision.Web.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MajorDecision.Web.Models
+namespace MajorDecision.Web.Models.Entities
 {
     public class Decision
     {

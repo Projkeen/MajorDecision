@@ -1,5 +1,5 @@
 ﻿using MajorDecision.Web.Data.Repositories.Abstract;
-using MajorDecision.Web.Models;
+using MajorDecision.Web.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 

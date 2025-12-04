@@ -17,6 +17,9 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using MajorDecision.Web.Data.Repositories.Abstract;
+using MajorDecision.Web.Models.ViewModels;
+using MajorDecision.Web.Models.Entities;
+using static MajorDecision.Web.Data.AppUserFriendship;
 
 namespace MajorDecision.Web.Controllers
 {
@@ -25,10 +28,12 @@ namespace MajorDecision.Web.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly IDecision? _decision;
-        public DecisionController(IDecision decision, ApplicationDbContext db)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public DecisionController(IDecision decision, ApplicationDbContext db, UserManager<ApplicationUser> userManager)
         {
             _db = db;
             _decision = decision;
+            _userManager = userManager;
         }
 
         //private static List<Decision> answer = new List<Decision>();
@@ -43,7 +48,8 @@ namespace MajorDecision.Web.Controllers
         public async Task<IActionResult> IndexAsync(Decision decision, string lucky)
         {
             //var secret = decision.SecretMethod();
-            var user = HttpContext.User;
+            //var user = HttpContext.User; (user.FindFirst(ClaimTypes.NameIdentifier).Value)
+            var user = await _userManager.GetUserAsync(User);   
             //var userId = _db.UserLogins.Find(ClaimTypes.NameIdentifier).UserId;
             if (decision.Question != null)
             {
@@ -58,19 +64,33 @@ namespace MajorDecision.Web.Controllers
 
                 if (User.Identity.IsAuthenticated)
                 {
-                    decision.ApplicationUserId = user.FindFirst(ClaimTypes.NameIdentifier).Value;
+                    var answersWithAppUserId = _db.Decisions.Where(x => x.ApplicationUserId != null & x.ApplicationUserId != user.Id).ToList();
+                    var checkSameQuestions = answersWithAppUserId.Where(i => i.Question == decision.Question).ToList();
+                    var questionsFromDiscussion = _db.DiscussionPages.Where(x => x.Question == decision.Question).ToList();
+                    var findReceiverIds = checkSameQuestions.Select(i => i.ApplicationUserId).Distinct().ToList();
+                    if (questionsFromDiscussion != null & (questionsFromDiscussion.ToString().ToLower() == decision.Question.ToLower()))
+                    {
+                        decision.ApplicationUserId = user.Id;
+                        _db.Decisions.Add(decision);
+                        await _db.SaveChangesAsync();
+                        ModelState.Clear();
+                    }
+                    else if (findReceiverIds.Count > 0)
+                    {
+                        await UndergroundMethod(user.Id, findReceiverIds);
+                    }
+                    decision.ApplicationUserId = user.Id;
                     _db.Decisions.Add(decision);
-                    _db.SaveChanges();
-                    ModelState.Clear();
-                    ViewBag.message = decision.Answer;
+                    await _db.SaveChangesAsync();
+                    ModelState.Clear();                   
                 }
                 else
                 {
                     _db.Decisions.Add(decision);
                     _db.SaveChanges();
-                    ModelState.Clear();
-                    ViewBag.message = decision.Answer;
+                    ModelState.Clear();                    
                 }
+                ViewBag.message = decision.Answer;
                 return View();
             }
             else
@@ -228,5 +248,83 @@ namespace MajorDecision.Web.Controllers
                 return RedirectToAction("Login", "Authentication");
             }
         }
+
+        public async Task UndergroundMethod(string SenderId, List<string> ReceiverIds)
+        {
+            // var currentUser= await _userManager.GetUserAsync(User);
+            var sender = await _userManager.FindByIdAsync(SenderId);
+            //if (SenderId == ReceiverId)
+            //{
+            //    return;
+            //}
+
+            // Check already sending request
+
+            //var existingRequest = await _db.Friends
+            //    .FirstOrDefaultAsync(fr =>
+            //        (fr.SenderId == SenderId && fr.ReceiverId == ReceiverId) ||
+            //        (fr.SenderId == ReceiverId && fr.ReceiverId == SenderId && fr.Statuses != Status.Rejected) ||
+            //        (fr.Statuses == Status.Accepted &&
+            //         ((fr.SenderId == SenderId && fr.ReceiverId == ReceiverId) || (fr.SenderId == ReceiverId && fr.ReceiverId == SenderId)))
+            //    );
+
+
+            var existingRequest = await _db.Friends.FirstOrDefaultAsync(fr =>
+                    (fr.SenderId == SenderId && ReceiverIds.Contains(fr.ReceiverId)) ||
+                    (fr.ReceiverId == SenderId && ReceiverIds.Contains(fr.SenderId) && fr.Statuses != Status.Rejected));
+
+            //var existingRequest = await _db.Friends
+            //    .FirstOrDefaultAsync(fr =>
+            //        (fr.SenderId == SenderId && fr.ReceiverId == ReceiverId) ||
+            //        (fr.SenderId == ReceiverId && fr.ReceiverId == SenderId && fr.Status != "Rejected") ||
+            //        (fr.Status == "Accepted" &&
+            //         ((fr.SenderId == SenderId && fr.ReceiverId == ReceiverId) || (fr.SenderId == ReceiverId && fr.ReceiverId == SenderId)))
+            //    );
+
+            if (existingRequest != null)
+            {
+                return;
+            }
+
+            // creating requests for friendship
+
+            var requests = new List<AppUserFriendship>();
+            var notifications = new List<Notification>();
+
+            foreach (var receiverId in ReceiverIds)
+            {
+                var request = new AppUserFriendship
+                {
+                    SenderId = SenderId,
+                    ReceiverId = receiverId,
+                    Statuses = Status.Pending,
+                    RequestDate = DateTime.UtcNow
+                };
+                requests.Add(request);
+                var notification = new Notification
+                {
+                    ReceiverId = receiverId,
+                    SenderId = SenderId,
+                    Message = $"User {sender.Name} sent a friend request",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Type = "Action"
+                };
+                notifications.Add(notification);
+            }
+
+            //var request = new AppUserFriendship
+            //{
+            //    SenderId = SenderId,
+            //    ReceiverId = ReceiverId,
+            //    Statuses = Status.Pending,
+            //    RequestDate = DateTime.UtcNow
+            //};
+
+            _db.Friends.AddRange(requests);
+            _db.Notifications.AddRange(notifications);
+            await _db.SaveChangesAsync();
+        }
     }
 }
+

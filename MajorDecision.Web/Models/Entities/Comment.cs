@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 
-namespace MajorDecision.Web.Models
+namespace MajorDecision.Web.Models.Entities
 {
     public class Comment
     {
