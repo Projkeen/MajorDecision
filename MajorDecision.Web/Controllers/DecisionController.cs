@@ -122,7 +122,9 @@ namespace MajorDecision.Web.Controllers
                 var descDecisions = decisions.OrderByDescending(x => x.DateOfQuestion).Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
                 if (!String.IsNullOrEmpty(searchString))
                 {
-                    descDecisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString().Contains(searchString));
+                    descDecisions = decisions.OrderByDescending(d => d.DateOfQuestion)
+                        .Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString()
+                        .Contains(searchString));
                 }
                 if (pageNumber < 1)
                 {

@@ -28,11 +28,13 @@
         <div class="col-4">
             <form asp-action="AnswersHistory" asp-controller="Decision" method="get">
                 <div class="w-100 btn-group" role="group">
-                    <input type="text" class="form-control" name="searchString" placeholder="Search in history" autocomplete="off" @*value="@ViewData["Filter"]"*@ />
-                    <input type="submit" value="Search" class="btn btn-secondary" style="width:50%" />
-                    <a asp-action="AnswersHistory" class="btn btn-info" style="width:50%">Show all</a>
+                    <input type="search" class="form-control" name="searchString" placeholder="Search in history" autocomplete="off" @*value="@ViewData["Filter"]"*@ />
+                    <input type="submit" value="Search" class="btn btn-secondary" style="width:50%" />                    
                 </div>
             </form>
+        </div>
+        <div class="col-2">
+            <a asp-action="AnswersHistory" class="btn btn-info" style="width:50%">Show all</a>
         </div>
         <div class="col-4">
             <form asp-action="DeleteAllHistory" method="post">
