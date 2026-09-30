@@ -22,8 +22,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options=>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Authentication/Login");
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>().AddScoped<IDecision, DecisionService>()
-                .AddScoped<IPageService, PageService>().AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>().AddScoped<IDecisionService, DecisionService>()
+                .AddScoped<IPageService, PageService>().AddScoped<INotificationService, NotificationService>().AddScoped<IFriendshipService, FriendshipService>()
+                .AddScoped<IProfileService, ProfileService>().AddScoped<IAdminService, AdminService>();
 // Default Password settings.
 builder.Services.Configure<IdentityOptions>(options =>
 {

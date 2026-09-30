@@ -19,7 +19,8 @@
 
     </div>
 }
-
+<br>
+<br />
 <table class="col-9" style="text-align:center" width="100%">
     <thead>
         <tr>
@@ -39,11 +40,11 @@
                 <td>
                     @if (!string.IsNullOrEmpty(m.ProfilePictureUrl))
                     {
-                        <img src="~/Images/profileImages/@m.ProfilePictureUrl" style="width: 100px; height: 100px; border-radius: 50%;" />
+                        <img src="~/images/profileImages/@m.ProfilePictureUrl" style="width: 150px; height: 150px; border-radius: 50%;" />
                     }
                     else
                     {
-                        <img src="~/Images/NoImage.png" style="width: 100px; height: 100px; border-radius: 50%;" />
+                        <img src="~/images/NoImage.png" style="width: 150px; height: 150px; border-radius: 50%;" />
                     }
                 </td>
                 <td>@m.FirstName </td>
@@ -63,9 +64,12 @@
                     </td> *@
                 <td>
                     <span>
-                        <a class="btn btn-secondary" asp-controller="Admin" asp-action="ChangeUserRole" asp-route-id="@m.Id">
+                       @*  <a class="btn btn-secondary" asp-controller="Admin" asp-action="ChangeUserRole" asp-route-id="@m.Id">
                             Change User Role
-                        </a>
+                        </a> *@
+                        <form asp-controller="Admin" asp-action="ChangeUserRole" asp-route-id="@m.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-secondary">Change User Role</button>
+                        </form>
                     </span>
                 </td>
                 <td>
@@ -77,9 +81,9 @@
                         <i class="">Info</i>
                         </a> *@
                     </div>
-                    <button type="button" class="btn btn-secondary" asp-route-id="@m.Id" data-bs-toggle="modal" data-bs-target="#userInfo">
+                    @* <button type="button" class="btn btn-secondary" asp-route-id="@m.Id" data-bs-toggle="modal" data-bs-target="#userInfo">
                         Info popup
-                    </button>
+                    </button> *@
                 </td>
             </tr>
         }
@@ -116,13 +120,13 @@
 
 
 <div class="" role="">
-    <form asp-action="ClearDataWithoutApplicationUserId" method="get">
+    <form asp-action="ClearDataWithoutApplicationUserId" method="post">
         <input type="submit" value="Clear data without userId" class="btn btn-danger" />
     </form>
 </div>
 <br />
 <div class="" role="">
-    <form asp-action="ClearAllProfilePictures" method="get">
+    <form asp-action="ClearAllProfilePictures" method="post">
         <input type="submit" value="Clear all user photo" class="btn btn-danger" />
     </form>
 </div>

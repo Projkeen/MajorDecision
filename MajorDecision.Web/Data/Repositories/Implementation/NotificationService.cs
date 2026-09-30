@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MajorDecision.Web.Data.Repositories.Implementation
 {
-    public class NotificationService: INotificationService
+    public class NotificationService : INotificationService
     {
         private readonly ApplicationDbContext _db;
 
@@ -13,10 +13,31 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             _db = db;
         }
 
-        public async Task<List<Notification>> GetUnreadNotificationsForUserAsync(string userId)
+        public async Task<List<NotificationVM>> GetAndCheckReadAsync(string userId)
         {
-            //return await _db.Notifications.Include(n => n.User).Where(n => n.UserId == userId && !n.IsRead).OrderByDescending(n => n.CreatedAt).ToListAsync();
-            return await _db.Notifications.Include(n => n.Receiver).Where(n => n.ReceiverId == userId).OrderByDescending(n => n.CreatedAt).ToListAsync();
+            var notifications = await _db.Notifications.Where(n => n.ReceiverId == userId).OrderByDescending(n => n.CreatedAt).ToListAsync();
+
+            foreach (var n in notifications) n.IsRead = true;
+            await _db.SaveChangesAsync();
+
+            return notifications.Select(n => new NotificationVM
+            {
+                Id = n.Id,
+                Message = n.Message,
+                SenderId = n.SenderId,
+                Type = n.Type 
+            }).ToList();
+        }
+
+        public async Task<bool> DeleteAsync(int notificationId, string userId)
+        {
+            var notification = await _db.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId && n.ReceiverId == userId);
+            if (notification == null)
+                return false;
+
+            _db.Notifications.Remove(notification);
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

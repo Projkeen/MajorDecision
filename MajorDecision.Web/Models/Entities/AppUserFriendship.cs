@@ -11,7 +11,7 @@ namespace MajorDecision.Web.Data
         public ApplicationUser Receiver { get; set; }
         //public string Status { get; set; } = "Pending";
         public Status Statuses { get; set; }
-        public DateTime RequestDate { get; set; } = DateTime.UtcNow;
+        public DateTime RequestDate { get; set; } = DateTime.Now;
         public DateTime? BecameFriendsDate { get; set; }
 
         public enum Status

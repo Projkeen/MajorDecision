@@ -53,7 +53,7 @@
             </form>
         </div>
         <div class="col-4">
-            <form asp-action="Download" method="get">
+            <form asp-action="DownloadAnswers" method="get">
                 <input type="submit" value="Download logs" class="btn btn-secondary" />
             </form>
         </div>
@@ -120,7 +120,17 @@
                         <td>@item.Question</td>
                         <td>@item.Answer</td>
                         <td>@item.DateOfQuestion</td>
-                        <td><a class="btn btn-outline-secondary" asp-controller="DiscussionPage" asp-action="CreatePage" asp-route-id="@item.Id">Publish</a></td>
+                        @* <td><a asp-action="CreatePage" class="btn btn-outline-secondary" asp-controller="DiscussionPage" asp-route-id="@item.Id">Publish</a></td> *@
+                        <td>
+                            <button type="submit"
+                                    class="btn btn-outline-secondary"
+                                    asp-controller="DiscussionPage"
+                                    asp-action="CreatePage"
+                                    asp-route-id="@item.Id"
+                                    formmethod="post">
+                                Publish
+                            </button>
+                        </td>
                     </tr>
                     { number++; }
                 }

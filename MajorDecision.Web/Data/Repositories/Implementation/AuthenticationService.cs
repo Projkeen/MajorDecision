@@ -39,19 +39,6 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                         authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                     }
 
-                    //if (!await _roleManager.RoleExistsAsync("User"))
-                    //    await _roleManager.CreateAsync(new IdentityRole
-                    //    {
-                    //        Name = "User",
-                    //        NormalizedName = "USER",
-                    //        Id = Guid.NewGuid().ToString(),
-                    //        ConcurrencyStamp = Guid.NewGuid().ToString()
-                    //    });
-                    //if (await _roleManager.RoleExistsAsync("User"))
-                    //{
-                    //    await _userManager.AddToRoleAsync(user,"User");
-                    //}
-
                     status.StatusCode = 1;
                     status.Message = "Logged successfully";
                     return status;
@@ -67,13 +54,13 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                     status.StatusCode = 0;
                     status.Message = "Invalid password";
                     return status;
-                }                    
+                }
                 else
                 {
                     status.StatusCode = 0;
                     status.Message = "Error on loggin in";
                     return status;
-                }                
+                }
             }
             else if (email != null)
             {
@@ -88,7 +75,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                     foreach (var userRole in userRoles)
                     {
                         authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                    }        
+                    }
                     status.StatusCode = 1;
                     status.Message = "Logged successfully";
                     return status;
@@ -117,8 +104,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 status.StatusCode = 0;
                 status.Message = "Username is not found";
                 return status;
-            }       
-            //await _userManager.AddToRoleAsync(user, "Admin");
+            }
         }
 
         public async Task LogoutAsync()
@@ -127,7 +113,7 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
         }
 
         public async Task<Status> RegistrationAsync(Registration model)
-        {            
+        {
             var status = new Status();
             var userExists = await _userManager.FindByNameAsync(model.Username);
             var checkEmail = await _userManager.FindByEmailAsync(model.Email);
@@ -145,18 +131,18 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             }
 
             ApplicationUser user = new ApplicationUser
-            {                
+            {
                 SecurityStamp = Guid.NewGuid().ToString(),
                 Name = model.FirstName,
                 Email = model.Email,
                 UserName = model.Username,
-                EmailConfirmed = true,                
+                EmailConfirmed = true,
             };
 
             if (model.SecretPassword == "123456789")
             {
                 //model.Role = "Admin";
-                model.Role="Admin";
+                model.Role = "Admin";
             }
             else
             {
@@ -182,8 +168,8 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
             if (await _roleManager.RoleExistsAsync(model.Role))
             {
                 await _userManager.AddToRoleAsync(user, model.Role);
-            }            
-                
+            }
+
             status.StatusCode = 1;
             status.Message = "User has registered successfully";
             return status;
@@ -223,6 +209,6 @@ namespace MajorDecision.Web.Data.Repositories.Implementation
                 status.StatusCode = 0;
             }
             return status;
-        }        
+        }
     }
 }

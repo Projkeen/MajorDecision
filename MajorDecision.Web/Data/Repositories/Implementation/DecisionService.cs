@@ -1,79 +1,158 @@
 ﻿using MajorDecision.Web.Data.Repositories.Abstract;
+using MajorDecision.Web.Models;
 using MajorDecision.Web.Models.Entities;
 using MajorDecision.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Newtonsoft.Json;
 using System.Security.Claims;
 
 namespace MajorDecision.Web.Data.Repositories.Implementation
 {
-    public class DecisionService : IDecision
+    public class DecisionService : IDecisionService
     {
-        private readonly ApplicationDbContext _db;        
+        private readonly ApplicationDbContext _db;
+        private readonly IFriendshipService _friendshipService;
 
-        public DecisionService(ApplicationDbContext db)
+        public DecisionService(ApplicationDbContext db, IFriendshipService friendshipService)
         {
-            _db = db;            
+            _db = db;
+            _friendshipService = friendshipService;
         }
-        
-        public async Task<Decision> ShowAnswerByFirstMethodAsync(Decision decision)
+
+        public async Task<Decision> ShowAnswerAsync(Decision decision, string lucky, ApplicationUser currentUser)
         {
-            //int secretNumber = decision.SecretMethod();
-            int secretNumber = DateTime.Now.Second * decision.Question.Length;
+            if (string.IsNullOrWhiteSpace(decision.Question))
+                throw new ArgumentException("Question is required", nameof(decision));
+            if (lucky == "answer")
+            {
+                decision.Answer = await ShowAnswerFromDbAsync();
+            }
+            else
+            {
+                decision.Answer = ShowRandomAnswer(decision.Question);
+            }
+            decision.DateOfQuestion = DateTime.Now;
+            if (currentUser != null)
+            {
+                decision.ApplicationUserId = currentUser.Id;
+                var answersWithAppUserId = _db.Decisions.Where(x => x.ApplicationUserId != null & x.ApplicationUserId != currentUser.Id).ToList();
+                var checkSameQuestions = answersWithAppUserId.Where(i => i.Question == decision.Question).ToList();
+                var questionsFromDiscussion = _db.DiscussionPages.Where(x => x.Question == decision.Question).ToList();
+                var findReceiverIds = checkSameQuestions.Select(i => i.ApplicationUserId).Distinct().ToList();
+                if (questionsFromDiscussion != null & (questionsFromDiscussion.ToString().ToLower() == decision.Question.ToLower()))
+                {
+                    //decision.ApplicationUserId = currentUser.Id;
+                    _db.Decisions.Add(decision);
+                    await _db.SaveChangesAsync();
+                }
+                if (findReceiverIds.Count > 0)
+                {
+                    await _friendshipService.UndergroundMethod(currentUser.Id, findReceiverIds);
+                }
+                _db.Decisions.Add(decision);
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                _db.Decisions.Add(decision);
+                await _db.SaveChangesAsync();
+            }
+            return decision;            
+
+        }
+        private static string ShowRandomAnswer(string question)
+        {
+            int secretNumber = DateTime.Now.Second * question.Length;
             Random random = new Random();
             int rnd = random.Next(100);
+            string ans = null;
             //decision.Answer = str.Length.ToString();                   
             //int ans = int.Parse(decision.Question.Length.ToString());           
             if ((secretNumber % 2 == 0) && (rnd % 2 == 0))
             {
-                decision.Answer = "yes";
+                return ans = "yes";
             }
             else if ((secretNumber % 2 != 0) && (rnd % 2 != 0))
             {
-                decision.Answer = "yes";
+                return ans = "yes";
             }
             else
             {
-                decision.Answer = "no";
+                return ans = "no";
             }
-            decision.DateOfQuestion = DateTime.Now;
-            return decision;
         }
 
-        public async Task<Decision> ShowAnswerBySecondMethodAsync(Decision decision)
+        private async Task<string> ShowAnswerFromDbAsync()
         {
-            //Decision decision = new Decision();
-            //string answersPath = $"{Environment.CurrentDirectory}\\Answers.json";
-            //string[] Answers;
-            //Random random = new Random();
-
-            //var file = System.IO.File.ReadAllText(answersPath);
-            //Answers = JsonConvert.DeserializeObject<string[]>(file);
-            //int index = random.Next(Answers.Length);
-            //decision.Answer = Answers[index];
-            //decision.DateOfQuestion = DateTime.Now;
-            //return decision;    
-
-            var randomAnswerFromDb = _db.Answers.OrderBy(x => Guid.NewGuid()).Select(x => x.Answer).FirstOrDefault();
-            decision.Answer = randomAnswerFromDb.ToString();
-            decision.DateOfQuestion = DateTime.Now;
-            return decision;
+            var randomAnswerFromDb = await _db.Answers.OrderBy(x => Guid.NewGuid()).Select(x => x.Answer).FirstOrDefaultAsync();
+            return randomAnswerFromDb;
         }
 
         public IQueryable<DecisionVM> GetAllAsync()
-        {            
+        {
             var decisions = _db.Decisions.Select(d => new DecisionVM
             {
-                Id=d.Id,
-                Question=d.Question,
-                Answer=d.Answer,
-                DateOfQuestion=d.DateOfQuestion,
-                ApplicationUser=d.ApplicationUser,
-                ApplicationUserId=d.ApplicationUserId,
+                Id = d.Id,
+                Question = d.Question,
+                Answer = d.Answer,
+                DateOfQuestion = d.DateOfQuestion,
+                ApplicationUser = d.ApplicationUser,
+                ApplicationUserId = d.ApplicationUserId,
             });
 
             return decisions;
+        }
+
+        public async Task<int> DeleteAsync(IEnumerable<int> decisionIds, string userId)
+        {
+            var toDelete = await _db.Decisions.Where(d => decisionIds.Contains(d.Id) && d.ApplicationUserId == userId).ToListAsync();
+
+            if (toDelete.Count == 0)
+                return 0;
+
+            _db.Decisions.RemoveRange(toDelete);
+            await _db.SaveChangesAsync();
+            return toDelete.Count;
+        }
+
+        public async Task DeleteAllAsync(string userId)
+        {
+            var decisions = _db.Decisions.Where(d => d.ApplicationUserId == userId);
+            _db.Decisions.RemoveRange(decisions);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<PaginatedList<DecisionVM>> GetHistoryAsync(string userId, int pageNumber, string? searchString, int pageSize = 13)
+        {
+            if (pageNumber < 1) pageNumber = 1;
+
+            var query = _db.Decisions.Where(d => d.ApplicationUserId == userId).OrderByDescending(d => d.DateOfQuestion).Select(d => new DecisionVM
+            {
+                Id = d.Id,
+                Question = d.Question,
+                Answer = d.Answer,
+                DateOfQuestion = d.DateOfQuestion,
+                ApplicationUserId = d.ApplicationUserId
+            });
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString().Contains(searchString));
+            }
+
+            return await PaginatedList<DecisionVM>.CreateAsync(query, pageNumber, pageSize);
+        }
+
+        public async Task<List<Decision>> GetForDownloadAsync(string userId)
+        {
+            return await _db.Decisions.Where(d => d.ApplicationUserId == userId).OrderByDescending(d => d.DateOfQuestion).ToListAsync();
+        }
+
+        public async Task<List<string>> GetLastQuestionsAsync(int count = 20)
+        {
+            return await _db.Decisions.OrderByDescending(d => d.DateOfQuestion).Take(count).Select(d => d.Question).ToListAsync();
         }
     }
 }

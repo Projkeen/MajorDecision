@@ -5,10 +5,12 @@ namespace MajorDecision.Web.Data.Repositories.Abstract
 {
     public interface IPageService
     {
-        IQueryable<DiscussionPage> GetPages();
-        Task Create(DiscussionPage page);
-        //Task Update(DiscussionPage page);
-        //Task Delete(int id);
+        IQueryable<DiscussionPage> GetPages();        
+        Task<DiscussionPage?> CreateFromDecisionAsync(int decisionId, ApplicationUser currentUser);
+        Task<(bool Success, string Message)> DeletePageAsync(int pageId, string userId, bool isAdmin);
+        Task<bool> AddDescriptionAsync(int pageId, string description);
+        Task<DiscussionPage?> AddCommentAsync(string text, int discussionPageId, string userId);
+        Task<(bool Success, string Message, int? DiscussionPageId)> DeleteCommentAsync(int commentId, string userId, bool isAdmin);        
         Task<DiscussionPage> GetById(int? id);
         Task SaveChanges();
     }

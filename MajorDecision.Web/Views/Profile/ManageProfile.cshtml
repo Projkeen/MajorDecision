@@ -57,7 +57,7 @@
                     @* <span aria-hidden="true">&times;</span>*@
                 </button>
             </div>
-            <form asp-controller="Profile" asp-action="EditUser" method="get">
+            <form asp-controller="Profile" asp-action="EditUser" method="post">
                 <div class="modal-body">
                     <div class="form-group" style="display:none">
                         <label class="control-label">Id</label>
@@ -123,7 +123,7 @@
 
             <span id="confirmDeleteSpan" style="display:none">
                 <span>Are you sure?</span>
-                <input name="str" type="text" formmethod="get" class="form-control" style="width:200px;" placeholder="Enter <Delete> " />
+                <input name="confirm" type="text" formmethod="get" class="form-control" style="width:200px;" placeholder="Enter <Delete> " />
                 <br>
                 <button type="submit" class="btn btn-danger" onclick="return confirm('⚠ Are you sure?')">Delete</button>
                 <a href="#" class="btn btn-secondary" onclick="confirmDelete(false)">Cancel</a>
@@ -142,6 +142,7 @@
             else
             {
                 <img src="~/Images/profileImages/@ViewData["Photo"]" asp-append-version="true" style="width:auto; height:200px" />
+                //<img src="~/Images/profileImages/@Model.ProfilePictureUrl" asp-append-version="true" style="width:auto; height:200px" />
             }
             @*<img src="@photoPath" asp-append-version="true" style="width:200px; height:150px" />*@
 

@@ -31,11 +31,11 @@
                     <div class="col-sm">
                         @if (string.IsNullOrEmpty(mod.ApplicationUser.ProfilePicture))
                         {
-                            <img src="~/images/NoImage.png" style="max-width: 100px; max-height: 100px; border-radius: 50%;" />
+                            <img src="~/images/NoImage.png" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                         }
                         else
                         {
-                            <img src="~/images/profileImages/@mod.ApplicationUser.ProfilePicture" style="max-width: 100px; max-height: 100px; border-radius: 50%;" />
+                            <img src="~/images/profileImages/@mod.ApplicationUser.ProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                         }
                     </div>
                     <div class="col-sm">
@@ -45,7 +45,10 @@
                         <div>Posted by: @mod.ApplicationUser.UserName - @mod.DateOfCreating</div>                        
                     </div>
                     <div class="col-sm text-end">
-                        <a class="btn btn-danger" asp-controller="DiscussionPage" asp-action="DeletePage" asp-route-id="@mod.Id" onclick="return confirm('⚠ Are you sure?')">X</a>
+                        @* <a class="btn btn-danger" asp-controller="DiscussionPage" asp-action="DeletePage" asp-route-id="@mod.Id" onclick="return confirm('⚠ Are you sure?')">X</a> *@
+                        <form asp-controller="DiscussionPage" asp-action="DeletePage" asp-route-id="@mod.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('⚠ Are you sure?')">X</button>
+                        </form>
                         @* @await Html.PartialAsync("_DeleteCardPartialView", mod) *@
                     </div>
                 </div>

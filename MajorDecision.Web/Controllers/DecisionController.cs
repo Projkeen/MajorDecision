@@ -26,223 +26,52 @@ namespace MajorDecision.Web.Controllers
     //[Authorize]
     public class DecisionController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        private readonly IDecision? _decision;
+        private readonly IDecisionService _decisionService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public DecisionController(IDecision decision, ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+        public DecisionController(IDecisionService decisionService, UserManager<ApplicationUser> userManager)
         {
-            _db = db;
-            _decision = decision;
+            _decisionService = decisionService;
             _userManager = userManager;
         }
 
-        //private static List<Decision> answer = new List<Decision>();
         public IActionResult Index()
         {
-            //List<Decision> decisions = _db.Decisions.ToList();
-            //return View(decisions);
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> IndexAsync(Decision decision, string lucky)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(Decision decision, string lucky)
         {
-            //var secret = decision.SecretMethod();
-            //var user = HttpContext.User; (user.FindFirst(ClaimTypes.NameIdentifier).Value)
-            var user = await _userManager.GetUserAsync(User);   
-            //var userId = _db.UserLogins.Find(ClaimTypes.NameIdentifier).UserId;
-            if (decision.Question != null)
-            {
-                if (lucky == "answer")
-                {
-                    await _decision.ShowAnswerBySecondMethodAsync(decision);
-                }
-                else
-                {
-                    await _decision.ShowAnswerByFirstMethodAsync(decision);
-                }
-
-                if (User.Identity.IsAuthenticated)
-                {
-                    var answersWithAppUserId = _db.Decisions.Where(x => x.ApplicationUserId != null & x.ApplicationUserId != user.Id).ToList();
-                    var checkSameQuestions = answersWithAppUserId.Where(i => i.Question == decision.Question).ToList();
-                    var questionsFromDiscussion = _db.DiscussionPages.Where(x => x.Question == decision.Question).ToList();
-                    var findReceiverIds = checkSameQuestions.Select(i => i.ApplicationUserId).Distinct().ToList();
-                    if (questionsFromDiscussion != null & (questionsFromDiscussion.ToString().ToLower() == decision.Question.ToLower()))
-                    {
-                        decision.ApplicationUserId = user.Id;
-                        _db.Decisions.Add(decision);
-                        await _db.SaveChangesAsync();
-                        ModelState.Clear();
-                    }
-                    else if (findReceiverIds.Count > 0)
-                    {
-                        await UndergroundMethod(user.Id, findReceiverIds);
-                    }
-                    decision.ApplicationUserId = user.Id;
-                    _db.Decisions.Add(decision);
-                    await _db.SaveChangesAsync();
-                    ModelState.Clear();                   
-                }
-                else
-                {
-                    _db.Decisions.Add(decision);
-                    _db.SaveChanges();
-                    ModelState.Clear();                    
-                }
-                ViewBag.message = decision.Answer;
-                return View();
-            }
-            else
+            if (string.IsNullOrWhiteSpace(decision.Question))
             {
                 TempData["AlertMessage"] = "You must enter the question";
-                return RedirectToAction("Index", "Decision");
+                return RedirectToAction("Index");
             }
 
-            //return RedirectToAction(nameof(Answer));           
-            //return RedirectToAction("Index","Decision");
-            //return decision.Answer;
-            //return View();
-        }
-
-        public async Task <IActionResult> AnswersHistory(int pageNumber, string searchString)
-        {
-            //ViewBag.Id = id;
-            //Decision? decisionFromDb = _db.Decisions.FirstOrDefault(u=>u.Id==id);
-            //List<Decision> decisions = _db.Decisions.ToList();
-            //List<Decision> decisions = _db.Decisions.Single(i => i.Id == 0);
-            //return View(decisionFromDb);  
-            //List<Decision> answer = _db.Decisions.SingleOrDefault();
-            //ViewData["Filter"] = searchString;
-            if (User.Identity.IsAuthenticated)
+            ApplicationUser? user;
+            if (User.Identity!.IsAuthenticated)
             {
-                var user = HttpContext.User;
-                //var decisions =  await _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value).ToListAsync();
-                var decisions = _decision.GetAllAsync();
-                var descDecisions = decisions.OrderByDescending(x => x.DateOfQuestion).Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
-                if (!String.IsNullOrEmpty(searchString))
-                {
-                    descDecisions = decisions.OrderByDescending(d => d.DateOfQuestion)
-                        .Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString()
-                        .Contains(searchString));
-                }
-                if (pageNumber < 1)
-                {
-                    pageNumber = 1;
-                }
-                int pageSize = 13;                
-                return View(await PaginatedList<DecisionVM>.CreateAsync(descDecisions, pageNumber, pageSize));
+                user = await _userManager.GetUserAsync(User);
             }
             else
             {
-                TempData["msg"] = "You must be loggin in";
-                return RedirectToAction("Login", "Authentication"); 
-            }
-        }
-
-        //method not using anymore
-        public IActionResult SearchHistory(string searchString)
-        {
-            var user = HttpContext.User;
-            var decisions = from d in _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value) select d;
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString().Contains(searchString));
-            }
-            return View("AnswersHistory", decisions.ToList());            
-        }
-
-        //public IActionResult Answer()
-        //{
-        //    //List<Decision> decisions = _db.Decisions.ToList();
-        //    //Decision? decisionFromDb = _db.Decisions.Find(id);
-        //    return View();
-        //}
-
-        [HttpPost]
-        public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
-        {
-            if (decisionIdsToDelete.Count() != 0)
-            {
-                List<Decision> decisions = _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList();
-                foreach (Decision decision in decisions)
-                {
-                    _db.Decisions.Remove(decision);
-                    _db.SaveChanges();
-                }
-                TempData["AlertMessage"] = "Deleted successfully";
-                return RedirectToAction("AnswersHistory");
-            }
-            TempData["AlertMessage"] = "You must select";
-            return RedirectToAction("AnswersHistory");
-
-        }
-
-        [HttpPost]
-        public IActionResult DeleteAllHistory()
-        {
-            var user = HttpContext.User;
-            //foreach (var item in _db.Decisions)
-            //{
-            //    _db.Decisions.Remove(item);
-            //}
-            var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
-            _db.Decisions.RemoveRange(decisions);
-            _db.SaveChanges();
-            return RedirectToAction("AnswersHistory");
-        }
-
-        //public IActionResult DeleteHistory(IEnumerable<int> decisionIdsToDelete)
-        //{
-        //    _db.Decisions.Where(x => decisionIdsToDelete.Contains(x.Id)).ToList().ForEach(y => _db.Decisions.Remove(y));
-        //    _db.SaveChanges();
-        //    return RedirectToAction("AnswersHistory");
-        //}
-
-        [HttpGet]
-        public IActionResult Download() //don't show russian letters, and not separate fields in rows
-        {
-            var user = HttpContext.User;
-            var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
-            if (decisions.Count() != 0)
-            {
-                string[] dataShows = new string[] { "User Question Answer Date Of Question" };
-                //var decisions = _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value);
-                string csv = string.Empty;
-                foreach (string dataShow in dataShows)
-                {
-                    csv += dataShow + ',';
-                }
-                csv += "\r\n";
-
-                foreach (var decision in decisions)
-                {
-                    csv += user.Identity.Name.Replace(",", ";") + ',';
-                    csv += decision.Question.Replace(",", ";") + ',';
-                    csv += decision.Answer.Replace(",", ";") + ',';
-                    csv += decision.DateOfQuestion;
-                    csv += "\r\n";
-                }
-                //byte[] bytes = Encoding.ASCII.GetBytes(csv);
-                //byte[] bytes = Encoding.UTF8.GetBytes(csv);
-                byte[] bytes = Encoding.Unicode.GetBytes(csv);
-                return File(bytes, "text/csv", user.Identity.Name + " Answers.csv");
-            }
-            else
-            {
-                TempData["AlertMessage"] = "No data";
-                return RedirectToAction("AnswersHistory");
+                user = null;
             }
 
+            var result = await _decisionService.ShowAnswerAsync(decision, lucky, user);
+            ModelState.Clear();
+            ViewBag.message = result.Answer;
+            return View();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> LastQuestions()
+        //[Authorize]
+        public async Task<IActionResult> AnswersHistory(int pageNumber, string? searchString)
         {
             if (User.Identity.IsAuthenticated)
             {
-                var questions = await _db.Decisions.OrderByDescending(x => x.DateOfQuestion).Take(20).Select(p=>p.Question).ToListAsync();  
-                return View(questions);
+                var user = await _userManager.GetUserAsync(User);
+                var history = await _decisionService.GetHistoryAsync(user.Id, pageNumber, searchString);
+                return View(history);
             }
             else
             {
@@ -251,82 +80,96 @@ namespace MajorDecision.Web.Controllers
             }
         }
 
-        public async Task UndergroundMethod(string SenderId, List<string> ReceiverIds)
+        //method not using anymore
+        //public IActionResult SearchHistory(string searchString)
+        //{
+        //    var user = HttpContext.User;
+        //    var decisions = from d in _db.Decisions.Where(x => x.ApplicationUserId == user.FindFirst(ClaimTypes.NameIdentifier).Value) select d;
+        //    if (!String.IsNullOrEmpty(searchString))
+        //    {
+        //        decisions = decisions.Where(d => d.Answer.Contains(searchString) || d.Question.Contains(searchString) || d.DateOfQuestion.ToString().Contains(searchString));
+        //    }
+        //    return View("AnswersHistory", decisions.ToList());            
+        //}        
+
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteHistory(IEnumerable<int> decisionIdsToDelete)
         {
-            // var currentUser= await _userManager.GetUserAsync(User);
-            var sender = await _userManager.FindByIdAsync(SenderId);
-            //if (SenderId == ReceiverId)
-            //{
-            //    return;
-            //}
-
-            // Check already sending request
-
-            //var existingRequest = await _db.Friends
-            //    .FirstOrDefaultAsync(fr =>
-            //        (fr.SenderId == SenderId && fr.ReceiverId == ReceiverId) ||
-            //        (fr.SenderId == ReceiverId && fr.ReceiverId == SenderId && fr.Statuses != Status.Rejected) ||
-            //        (fr.Statuses == Status.Accepted &&
-            //         ((fr.SenderId == SenderId && fr.ReceiverId == ReceiverId) || (fr.SenderId == ReceiverId && fr.ReceiverId == SenderId)))
-            //    );
-
-
-            var existingRequest = await _db.Friends.FirstOrDefaultAsync(fr =>
-                    (fr.SenderId == SenderId && ReceiverIds.Contains(fr.ReceiverId)) ||
-                    (fr.ReceiverId == SenderId && ReceiverIds.Contains(fr.SenderId) && fr.Statuses != Status.Rejected));
-
-            //var existingRequest = await _db.Friends
-            //    .FirstOrDefaultAsync(fr =>
-            //        (fr.SenderId == SenderId && fr.ReceiverId == ReceiverId) ||
-            //        (fr.SenderId == ReceiverId && fr.ReceiverId == SenderId && fr.Status != "Rejected") ||
-            //        (fr.Status == "Accepted" &&
-            //         ((fr.SenderId == SenderId && fr.ReceiverId == ReceiverId) || (fr.SenderId == ReceiverId && fr.ReceiverId == SenderId)))
-            //    );
-
-            if (existingRequest != null)
+            var user = await _userManager.GetUserAsync(User);
+            if (decisionIdsToDelete.Count() != 0)
             {
-                return;
-            }
-
-            // creating requests for friendship
-
-            var requests = new List<AppUserFriendship>();
-            var notifications = new List<Notification>();
-
-            foreach (var receiverId in ReceiverIds)
-            {
-                var request = new AppUserFriendship
+                int[] idsToDelete;
+                if (decisionIdsToDelete != null)
                 {
-                    SenderId = SenderId,
-                    ReceiverId = receiverId,
-                    Statuses = Status.Pending,
-                    RequestDate = DateTime.UtcNow
-                };
-                requests.Add(request);
-                var notification = new Notification
+                    idsToDelete = decisionIdsToDelete.ToArray();
+                }
+                else
                 {
-                    ReceiverId = receiverId,
-                    SenderId = SenderId,
-                    Message = $"User {sender.Name} sent a friend request",
-                    CreatedAt = DateTime.Now,
-                    IsRead = false,
-                    Type = "Action"
-                };
-                notifications.Add(notification);
+                    idsToDelete = Array.Empty<int>();
+                }
+                var deletedCount = await _decisionService.DeleteAsync(idsToDelete, user.Id);
+                TempData["AlertMessage"] = "Deleted successfully";
+                return RedirectToAction("AnswersHistory");
             }
-
-            //var request = new AppUserFriendship
-            //{
-            //    SenderId = SenderId,
-            //    ReceiverId = ReceiverId,
-            //    Statuses = Status.Pending,
-            //    RequestDate = DateTime.UtcNow
-            //};
-
-            _db.Friends.AddRange(requests);
-            _db.Notifications.AddRange(notifications);
-            await _db.SaveChangesAsync();
+            TempData["AlertMessage"] = "You must select";
+            return RedirectToAction("AnswersHistory");
         }
+
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAllHistory()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            await _decisionService.DeleteAllAsync(user.Id);
+            return RedirectToAction("AnswersHistory");
+        }
+
+        [Authorize, HttpGet]
+        public async Task<IActionResult> DownloadAnswers()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var decisions = await _decisionService.GetForDownloadAsync(user.Id);
+
+            if (decisions.Count == 0)
+            {
+                TempData["AlertMessage"] = "No data";
+                return RedirectToAction("AnswersHistory");
+            }
+
+            var csv = new StringBuilder();
+            csv.AppendLine("User;Question;Answer;Date Of Question");
+
+            foreach (var d in decisions)
+            {
+                csv.AppendLine(string.Join(';', CsvEscape(user.UserName ?? ""), CsvEscape(d.Question), CsvEscape(d.Answer ?? ""), d.DateOfQuestion.ToString("O")));
+            }
+            var utf8WithBom = new UTF8Encoding(true);
+            var bytes = utf8WithBom.GetPreamble().Concat(utf8WithBom.GetBytes(csv.ToString())).ToArray();
+
+            return File(bytes, "text/csv", $"{user.UserName} Answers.csv");
+        }
+
+        private static string CsvEscape(string value)
+        {
+            if (value.Contains(';') || value.Contains('"') || value.Contains('\n'))
+                return $"\"{value.Replace("\"", "\"\"")}\"";
+            return value;
+        }
+
+        //[HttpGet, Authorize]
+        [HttpGet]
+        public async Task<IActionResult> LastQuestions()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var questions = await _decisionService.GetLastQuestionsAsync();
+                return View(questions);
+            }
+            else
+            {
+                TempData["msg"] = "You must be loggin in";
+                return RedirectToAction("Login", "Authentication");
+            }
+        }        
     }
 }
 

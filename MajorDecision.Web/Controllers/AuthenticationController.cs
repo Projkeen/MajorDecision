@@ -19,7 +19,7 @@ namespace MajorDecision.Web.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Registration(Registration model)
         {
             if (!ModelState.IsValid)
@@ -35,14 +35,15 @@ namespace MajorDecision.Web.Controllers
             {
                 TempData["msg"] = result.Message;
                 return RedirectToAction(nameof(Registration));
-            }
-            
+            }            
         }
+
         public IActionResult Login()
         {
             return View();
         }
-        [HttpPost]
+
+        [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Login model)
         {
             if (!ModelState.IsValid)
@@ -75,7 +76,7 @@ namespace MajorDecision.Web.Controllers
             return View();
         }
 
-        [Authorize, HttpPost]
+        [Authorize, HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePassword model)
         {
             if (!ModelState.IsValid)
