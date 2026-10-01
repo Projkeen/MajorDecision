@@ -16,10 +16,10 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
-using MajorDecision.Web.Data.Repositories.Abstract;
 using MajorDecision.Web.Models.ViewModels;
 using MajorDecision.Web.Models.Entities;
 using static MajorDecision.Web.Data.AppUserFriendship;
+using MajorDecision.Data.Services.Abstract;
 
 namespace MajorDecision.Web.Controllers
 {

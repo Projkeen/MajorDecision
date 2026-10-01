@@ -1,17 +1,18 @@
 ﻿using Azure.Identity;
-using MajorDecision.Web.Data.Repositories.Abstract;
+using MajorDecision.Data.Services.Abstract;
 using MajorDecision.Web.Models.ViewModels.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static MajorDecision.Web.Data.AppUserFriendship;
 
 namespace MajorDecision.Web.Controllers
 {
     public class AuthenticationController : Controller
     {
-        private readonly IAuthenticationService _service;
-        public AuthenticationController(IAuthenticationService service)
+        private readonly IAuthenticationService _authService;
+        public AuthenticationController(IAuthenticationService authService)
         {
-            _service = service;
+            _authService = authService;
         }
 
         public IActionResult Registration()
@@ -23,19 +24,19 @@ namespace MajorDecision.Web.Controllers
         public async Task<IActionResult> Registration(Registration model)
         {
             if (!ModelState.IsValid)
-                return View(model);           
+                return View(model);
 
-            var result = await _service.RegistrationAsync(model);
-            if (result.StatusCode == 1)
+            var (status, user, role) = await _authService.RegistrationAsync(model);
+            if (status.StatusCode == 1 || user != null)
             {
-                TempData["msg"] = result.Message;
+                TempData["msg"] = status.Message;
                 return RedirectToAction(nameof(Login));
             }
             else
             {
-                TempData["msg"] = result.Message;
+                TempData["msg"] = status.Message;
                 return RedirectToAction(nameof(Registration));
-            }            
+            }
         }
 
         public IActionResult Login()
@@ -43,7 +44,7 @@ namespace MajorDecision.Web.Controllers
             return View();
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Login model)
         {
             if (!ModelState.IsValid)
@@ -51,14 +52,14 @@ namespace MajorDecision.Web.Controllers
                 return View(model);
             }
 
-            var result = await _service.LoginAsync(model);
-            if (result.StatusCode == 1)
+            var (status, user, role) = await _authService.LoginAsync(model);
+            if (status.StatusCode == 1 || user != null)
             {
                 return RedirectToAction("Index", "Decision");
             }
             else
             {
-                TempData["msg"] = result.Message;
+                TempData["msg"] = status.Message;
                 return RedirectToAction(nameof(Login));
             }
         }
@@ -66,7 +67,7 @@ namespace MajorDecision.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            await _service.LogoutAsync();
+            await _authService.LogoutAsync();
             return RedirectToAction("Index", "Decision");
         }
 
@@ -81,7 +82,7 @@ namespace MajorDecision.Web.Controllers
         {
             if (!ModelState.IsValid)
                 return View(model);
-            var result = await _service.ChangePasswordAsync(model, User.Identity.Name);
+            var result = await _authService.ChangePasswordAsync(model, User.Identity.Name);
             if (result.StatusCode == 1)
             {
                 TempData["msg"] = result.Message;
@@ -91,8 +92,8 @@ namespace MajorDecision.Web.Controllers
             {
                 TempData["msg"] = result.Message;
                 return RedirectToAction(nameof(ChangePassword));
-            }            
-        }      
+            }
+        }
     }
 }
 

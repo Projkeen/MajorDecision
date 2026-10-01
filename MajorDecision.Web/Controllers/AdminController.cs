@@ -1,6 +1,4 @@
-﻿using MajorDecision.Web.Data;
-using MajorDecision.Web.Data.Repositories.Abstract;
-using MajorDecision.Web.Models.Entities;
+﻿using MajorDecision.Web.Models.Entities;
 using MajorDecision.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +10,10 @@ using System.Data;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Security.Claims;
+using MajorDecision.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Hosting;
+using MajorDecision.Data.Services.Abstract;
 
 namespace MajorDecision.Web.Controllers
 {

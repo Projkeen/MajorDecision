@@ -1,5 +1,5 @@
-﻿using MajorDecision.Web.Data;
-using MajorDecision.Web.Data.Repositories.Abstract;
+﻿using MajorDecision.Data.Services.Abstract;
+using MajorDecision.Web.Data;
 using MajorDecision.Web.Models;
 using MajorDecision.Web.Models.Entities;
 using MajorDecision.Web.Models.ViewModels;

@@ -1,6 +1,6 @@
-using MajorDecision.Web.Data;
-using MajorDecision.Web.Data.Repositories.Abstract;
-using MajorDecision.Web.Data.Repositories.Implementation;
+using MajorDecision.Data;
+using MajorDecision.Data.Services.Abstract;
+using MajorDecision.Data.Services.Implementation;
 using MajorDecision.Web.Models.Entities;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
