@@ -1,6 +1,7 @@
-﻿@using MajorDecision.Web.Models;
+﻿@using MajorDecision.Data.Dto
+@using MajorDecision.Web.Models;
 @using MajorDecision.Web.Models.Entities
-@model Decision
+@model DecisionRequest
 
 @if (TempData["AlertMessage"] != null)
 {
@@ -16,7 +17,7 @@
 @if (User.Identity.IsAuthenticated)
 {
     string username = User.Identity.Name;
-    <p>Welcome @username !</p>      
+    <p>Welcome @username !</p>
 }
 
 
@@ -40,16 +41,11 @@
     <div class="question-box">
         <input asp-for="Question" type="text" placeholder="type a question" class="text-center" />
         @*<div id="loading" style="height:32px; width:32px; display:none; background: url('images\8ball.gif') top left no-repeat"></div>*@
-        <button type="submit" class="question-btn"  onclick="DisplayLoading()">Try!</button>
-
-
+        <button type="submit" class="question-btn" onclick="DisplayLoading()">Try!</button>
     </div>
     <div>
-        @using (Html.BeginForm("Index", "Decision", FormMethod.Get))
-        {
-            <b>I want more information!</b>
-            @Html.RadioButton("lucky", "answer", false)
-        }
+        <b>I want more information!</b>
+        @Html.RadioButton("lucky", "answer", false)
     </div>
     @*<p id="loading" style="height:50px; width:50px; display:none; "> <img src="~/images/5zdc.gif" style="height:100px;width: justify-content:center"></p>*@
     @* <div id="loading" class="justify-content-center" style="display:none">
@@ -106,14 +102,14 @@
         };
     </script>  *@
 
-@section Scripts{
+@section Scripts {
     <script>
         DisplayLoading = function () {
             $('#loading').css('display', 'inline-block');
             $('#modal-loading').show();
         }
     </script>
-    }
+}
 
 @*<div id="loading" style="height:32px; width:32px; display:none; background: url('images\5zdc.gif') top left no-repeat;"></div>*@
 

@@ -1,4 +1,5 @@
 ﻿using MajorDecision.Data;
+using MajorDecision.Data.Dto;
 using MajorDecision.Data.Services.Abstract;
 using MajorDecision.Web.Models;
 using MajorDecision.Web.Models.Entities;
@@ -21,10 +22,16 @@ namespace MajorDecision.Data.Services.Implementation
             _friendshipService = friendshipService;
         }
 
-        public async Task<Decision> ShowAnswerAsync(Decision decision, string lucky, ApplicationUser currentUser)
+        public async Task<Decision> ShowAnswerAsync(string request, string lucky, ApplicationUser? currentUser)
         {
-            if (string.IsNullOrWhiteSpace(decision.Question))
-                throw new ArgumentException("Question is required", nameof(decision));
+            if (string.IsNullOrWhiteSpace(request))
+                throw new ArgumentException("Question is required", nameof(request));
+
+            var decision = new Decision
+            {
+                Question = request,
+                DateOfQuestion = DateTime.UtcNow
+            };
             if (lucky == "answer")
             {
                 decision.Answer = await ShowAnswerFromDbAsync();
@@ -33,7 +40,7 @@ namespace MajorDecision.Data.Services.Implementation
             {
                 decision.Answer = ShowRandomAnswer(decision.Question);
             }
-            decision.DateOfQuestion = DateTime.Now;
+            
             if (currentUser != null)
             {
                 decision.ApplicationUserId = currentUser.Id;

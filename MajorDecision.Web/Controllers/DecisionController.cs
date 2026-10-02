@@ -20,6 +20,7 @@ using MajorDecision.Web.Models.ViewModels;
 using MajorDecision.Web.Models.Entities;
 using static MajorDecision.Web.Data.AppUserFriendship;
 using MajorDecision.Data.Services.Abstract;
+using MajorDecision.Data.Dto;
 
 namespace MajorDecision.Web.Controllers
 {
@@ -40,9 +41,9 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(Decision decision, string lucky)
+        public async Task<IActionResult> Index(DecisionRequest request, string lucky)
         {
-            if (string.IsNullOrWhiteSpace(decision.Question))
+            if (string.IsNullOrWhiteSpace(request.Question))
             {
                 TempData["AlertMessage"] = "You must enter the question";
                 return RedirectToAction("Index");
@@ -58,7 +59,7 @@ namespace MajorDecision.Web.Controllers
                 user = null;
             }
 
-            var result = await _decisionService.ShowAnswerAsync(decision, lucky, user);
+            var result = await _decisionService.ShowAnswerAsync(request.Question, lucky, user);
             ModelState.Clear();
             ViewBag.message = result.Answer;
             return View();
