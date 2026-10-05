@@ -127,8 +127,11 @@ namespace MajorDecision.Data.Services.Implementation
         public async Task DeleteAllAsync(string userId)
         {
             var decisions = _db.Decisions.Where(d => d.ApplicationUserId == userId);
-            _db.Decisions.RemoveRange(decisions);
-            await _db.SaveChangesAsync();
+            if(decisions.Count() != 0)
+            {
+                _db.Decisions.RemoveRange(decisions);
+                await _db.SaveChangesAsync();
+            }   
         }
 
         public async Task<PaginatedList<DecisionVM>> GetHistoryAsync(string userId, int pageNumber, string? searchString, int pageSize = 13)
