@@ -15,7 +15,7 @@ namespace MajorDecision.Data
         }
 
         public DbSet<Decision> Decisions { get; set; }
-        public DbSet<Answers> Answers { get; set; }
+        public DbSet<AnswerSentence> Answers { get; set; }
         public DbSet<DiscussionPage> DiscussionPages { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<AppUserFriendship> Friends { get; set; }
@@ -45,13 +45,13 @@ namespace MajorDecision.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<Answers>().HasData(
-                new Answers { Id = 1, Answer = "May be" },
-                new Answers { Id = 2, Answer = "More likely" },
-                new Answers { Id = 3, Answer = "Ask this question tomorrow" },
-                new Answers { Id = 4, Answer = "What do you think?" },
-                new Answers { Id = 5, Answer = "I can not answer" },
-                new Answers { Id = 6, Answer = "..." }
+            builder.Entity<AnswerSentence>().HasData(
+                new AnswerSentence { Id = 1, Answer = "May be" },
+                new AnswerSentence { Id = 2, Answer = "More likely" },
+                new AnswerSentence { Id = 3, Answer = "Ask this question tomorrow" },
+                new AnswerSentence { Id = 4, Answer = "What do you think?" },
+                new AnswerSentence { Id = 5, Answer = "I can not answer" },
+                new AnswerSentence { Id = 6, Answer = "..." }
                 );
 
             builder.Entity<AppUserFriendship>(b =>

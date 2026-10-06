@@ -1,4 +1,5 @@
-﻿using MajorDecision.Web.Models.Entities;
+﻿using MajorDecision.Data.Dto;
+using MajorDecision.Web.Models.Entities;
 using MajorDecision.Web.Models.ViewModels;
 
 namespace MajorDecision.Data.Services.Abstract
@@ -9,10 +10,10 @@ namespace MajorDecision.Data.Services.Abstract
         Task<UserViewModel?> GetUserInfoAsync(string userId);
         Task<(bool Success, string Message)> ChangeUserRoleAsync(string userId, string toggledRole = "Admin", string defaultRole = "User");
         Task<int> ClearDecisionsWithoutApplicationUserIdAsync();
-        Task<int> ClearAllProfilePicturesAsync(string webRootPath);
-        Task<List<Answers>> GetAnswersAsync();
-        Task AddAnswerAsync(Answers answer);
-        Task<bool> EditAnswerAsync(Answers answer);
+        Task<int> ClearAllProfilePicturesAsync(/*string webRootPath*/);
+        Task<List<AnswerSentence>> GetAnswersAsync();
+        Task AddAnswerAsync(CreateAnswerDto answerDto);
+        Task<bool> EditAnswerAsync(int id, CreateAnswerDto answerDto);
         Task<bool> DeleteAnswerAsync(int id);
     }
 }

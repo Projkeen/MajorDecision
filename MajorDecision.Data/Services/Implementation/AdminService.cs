@@ -1,21 +1,25 @@
 ﻿using MajorDecision.Data;
+using MajorDecision.Data.Dto;
 using MajorDecision.Data.Services.Abstract;
 using MajorDecision.Web.Models.Entities;
 using MajorDecision.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace MajorDecision.Data.Services.Implementation
 {
     public class AdminService : IAdminService
     {
         private readonly ApplicationDbContext _db;
-        private readonly UserManager<ApplicationUser> _userManager;        
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly string _profileImagesPath;
 
-        public AdminService(ApplicationDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminService(ApplicationDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _db = db;
-            _userManager = userManager;            
+            _userManager = userManager;
+            _profileImagesPath = configuration["Storage:ProfileImagesPath"];
         }
 
         public async Task<List<UserViewModel>> GetAllUsersAsync(string currentUserId)
@@ -93,12 +97,12 @@ namespace MajorDecision.Data.Services.Implementation
             return decisionsWithoutApplicationUserId.Count;
         }
 
-        public async Task<int> ClearAllProfilePicturesAsync(string webRootPath)
+        public async Task<int> ClearAllProfilePicturesAsync(/*string webRootPath*/)
         {
-            var folder = Path.Combine(webRootPath, "images", "profileImages");
-            if (Directory.Exists(folder))
+            //var folder = Path.Combine(webRootPath, "images", "profileImages");
+            if (Directory.Exists(_profileImagesPath))
             {
-                foreach (var file in Directory.GetFiles(folder))
+                foreach (var file in Directory.GetFiles(_profileImagesPath))
                     File.Delete(file);
             }
 
@@ -109,25 +113,29 @@ namespace MajorDecision.Data.Services.Implementation
             return usersWithPicture.Count;
         }
 
-        public async Task<List<Answers>> GetAnswersAsync()
+        public async Task<List<AnswerSentence>> GetAnswersAsync()
         {
             var answers = await _db.Answers.ToListAsync();
             return answers;
         }
 
-        public async Task AddAnswerAsync(Answers answer)
+        public async Task AddAnswerAsync(CreateAnswerDto answerDto)
         {
-            _db.Answers.Add(answer);
+            var answerModel = new AnswerSentence
+            {
+                Answer = answerDto.Answer
+            };
+            _db.Answers.Add(answerModel);
             await _db.SaveChangesAsync();
         }
 
-        public async Task<bool> EditAnswerAsync(Answers answer)
+        public async Task<bool> EditAnswerAsync(int id, CreateAnswerDto answerDto)
         {
-            var existing = await _db.Answers.FindAsync(answer.Id);
+            var existing = await _db.Answers.FindAsync(id);
             if (existing == null)
                 return false;
 
-            existing.Answer = answer.Answer;
+            existing.Answer = answerDto.Answer;
             await _db.SaveChangesAsync();
             return true;
         }

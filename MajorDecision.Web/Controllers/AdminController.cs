@@ -14,6 +14,7 @@ using MajorDecision.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using MajorDecision.Data.Services.Abstract;
+using MajorDecision.Data.Dto;
 
 namespace MajorDecision.Web.Controllers
 {
@@ -102,7 +103,7 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddAnswerSentenceAsync(Answers newAnswer)
+        public async Task<IActionResult> AddAnswerSentence(CreateAnswerDto newAnswer)
         {
             if (ModelState.IsValid)
             {
@@ -126,11 +127,11 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditAnswerSentenceAsync(Answers modAnswer)
+        public async Task<IActionResult> EditAnswerSentence(int id, CreateAnswerDto newAnswer)
         {
             if (ModelState.IsValid)
             {
-                await _adminService.EditAnswerAsync(modAnswer);
+                await _adminService.EditAnswerAsync(id, newAnswer);
                 return RedirectToAction("DisplayAnswers");
             }
 
@@ -148,7 +149,7 @@ namespace MajorDecision.Web.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearAllProfilePictures()
         {
-            var count = await _adminService.ClearAllProfilePicturesAsync(_hostingEnvironment.WebRootPath);
+            var count = await _adminService.ClearAllProfilePicturesAsync(/*_hostingEnvironment.WebRootPath*/);
             if (count > 0)
             {
                 TempData["msg"] = "Profile photos have been deleted";
