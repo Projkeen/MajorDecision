@@ -71,29 +71,29 @@ namespace MajorDecision.Web.Controllers
             return RedirectToAction("Index", "Decision");
         }
 
-        [Authorize]
-        public IActionResult ChangePassword()
-        {
-            return View();
-        }
+        //[Authorize]
+        //public IActionResult ChangePassword()
+        //{
+        //    return View();
+        //}
 
-        [Authorize, HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePassword model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-            var result = await _authService.ChangePasswordAsync(model, User.Identity.Name);
-            if (result.StatusCode == 1)
-            {
-                TempData["msg"] = result.Message;
-                return RedirectToAction("ManageProfile", "Profile");
-            }
-            else
-            {
-                TempData["msg"] = result.Message;
-                return RedirectToAction(nameof(ChangePassword));
-            }
-        }
+        //[Authorize, HttpPost, ValidateAntiForgeryToken]
+        //public async Task<IActionResult> ChangePassword(ChangePassword model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return View(model);            
+        //    var result = await _authService.ChangePasswordAsync(model, User.Identity.Name);
+        //    if (result.StatusCode == 1)
+        //    {
+        //        TempData["msg"] = result.Message;
+        //        return RedirectToAction("ManageProfile", "Profile");
+        //    }
+        //    else
+        //    {
+        //        TempData["msg"] = result.Message;
+        //        return RedirectToAction(nameof(ChangePassword));
+        //    }
+        //}
     }
 }
 

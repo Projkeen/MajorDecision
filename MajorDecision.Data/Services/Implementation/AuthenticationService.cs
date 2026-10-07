@@ -175,39 +175,41 @@ namespace MajorDecision.Data.Services.Implementation
             return (status, user, userRoles);
         }
 
-        public async Task<Status> ChangePasswordAsync(ChangePassword model, string username)
+        public async Task<Status> ChangePasswordAsync(ChangePassword model, string userId)
         {
             var status = new Status();
-            var user = await _userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                status.Message = "User not found";
                 status.StatusCode = 0;
+                status.Message = "User not found";
                 return status;
             }
-            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-            if (result.Succeeded && model.NewPassword == model.PasswordConfirm)
-            {
-                status.Message = "Password has updated successfully";
-                status.StatusCode = 1;
 
-                if (model.NewPassword != model.PasswordConfirm)
-                {
-                    status.Message = "New password and confirm password doesn't match";
-                    status.StatusCode = 0;
-                }
-                if (model.CurrentPassword == model.NewPassword)
-                {
-                    status.Message = "The old password must not be the same as the new password";
-                    status.StatusCode = 0;
-                }
-            }
-
-            else
+            if (model.NewPassword != model.PasswordConfirm)
             {
-                status.Message = "Old password is wrong";
                 status.StatusCode = 0;
+                status.Message = "New password and confirm password doesn't match";
+                return status;
             }
+
+            if (model.CurrentPassword == model.NewPassword)
+            {
+                status.StatusCode = 0;
+                status.Message = "The old password must not be the same as the new password";
+                return status;
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                status.StatusCode = 0;
+                status.Message = "Old password is wrong";
+                return status;
+            }
+
+            status.StatusCode = 1;
+            status.Message = "Password has updated successfully";
             return status;
         }
     }

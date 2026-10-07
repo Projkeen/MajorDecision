@@ -1,9 +1,11 @@
-﻿using MajorDecision.Web.Models.Entities;
-using MajorDecision.Web.Models.ViewModels;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
-using MajorDecision.Data;
+﻿using MajorDecision.Data;
+using MajorDecision.Data.Dto;
 using MajorDecision.Data.Services.Abstract;
+using MajorDecision.Web.Models.Entities;
+using MajorDecision.Web.Models.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace MajorDecision.Data.Services.Implementation
 {
@@ -14,11 +16,14 @@ namespace MajorDecision.Data.Services.Implementation
         private const long MaxImageBytes = 5 * 1024 * 1024;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _db;
+        private readonly string _profileImagesPath;
 
-        public ProfileService(UserManager<ApplicationUser> userManager, ApplicationDbContext db)
+
+        public ProfileService(UserManager<ApplicationUser> userManager, ApplicationDbContext db, IConfiguration configuration)
         {
             _userManager = userManager;
             _db = db;
+            _profileImagesPath = configuration["Storage:ProfileImagesPath"];
         }
 
         public async Task<UserViewModel?> GetProfileAsync(string userId)
@@ -41,14 +46,17 @@ namespace MajorDecision.Data.Services.Implementation
             };
         }
 
-        public async Task<(bool Success, string Message)> UpdateProfileAsync(string userId, UserViewModel model)
+        public async Task<(bool Success, string Message)> UpdateProfileAsync(string userId, EditProfileRequest request)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return (false, "User not found");
 
-            user.UserName = model.Username;
-            user.Name = model.FirstName;
-            user.Email = model.Email;
+            if (!string.IsNullOrWhiteSpace(request.FirstName))
+                user.Name = request.FirstName;
+            if (!string.IsNullOrWhiteSpace(request.Username))
+                user.UserName = request.Username;
+            if (!string.IsNullOrWhiteSpace(request.Email))
+                user.Email = request.Email;
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
@@ -61,12 +69,12 @@ namespace MajorDecision.Data.Services.Implementation
             }
         }
 
-        public async Task<(bool Success, string Message)> UploadOrDeleteImageAsync(string userId, IFormFile? photo, string webRootPath)
+        public async Task<(bool Success, string Message)> UploadOrDeleteImageAsync(string userId, IFormFile? photo /*, string webRootPath*/)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return (false, "User not found");
 
-            var folder = Path.Combine(webRootPath, "images", "profileImages");
+            var folder = Path.Combine(_profileImagesPath/*, "images", "profileImages"*/);
             Directory.CreateDirectory(folder);
 
             if (photo == null)

@@ -26,7 +26,10 @@ namespace MajorDecision.Data.Services.Implementation
                 Id = n.Id,
                 Message = n.Message,
                 SenderId = n.SenderId,
-                Type = n.Type 
+                ReceiverId = n.ReceiverId,
+                ReceiverName = n.Receiver.UserName,
+                Type = n.Type,
+                IsRead = true
             }).ToList();
         }
 

@@ -41,7 +41,7 @@ namespace MajorDecision.Data.Services.Implementation
             foreach (var fr in rejectedMine)
             {
                 fr.Statuses = Status.Pending;
-                fr.RequestDate = DateTime.Now;                    
+                fr.RequestDate = DateTime.Now;
             }
             var newReceiverIds = receiverIdList.Except(existing).Except(rejectedMine.Select(fr => fr.ReceiverId)).ToList();
 
@@ -98,20 +98,21 @@ namespace MajorDecision.Data.Services.Implementation
             await _db.SaveChangesAsync();
         }
 
-        public async Task<bool> AcceptAsync(string currentUserId, string senderId)
+        public async Task<(bool Success, string Message)> AcceptAsync(string currentUserId, string senderId)
         {
-            var friendship = await _db.Friends.FirstOrDefaultAsync(f => f.SenderId == senderId && f.ReceiverId == currentUserId && f.Statuses == Status.Pending);
+            var friendship = await _db.Friends.Include(f => f.Sender)
+                .FirstOrDefaultAsync(f => f.SenderId == senderId && f.ReceiverId == currentUserId && f.Statuses == Status.Pending);
             if (friendship == null)
-                return false;
+                return new(false, "No request");
 
             friendship.Statuses = Status.Accepted;
-            friendship.BecameFriendsDate = DateTime.Now;
+            friendship.BecameFriendsDate = DateTime.Now;            
 
             var receiver = await _userManager.FindByIdAsync(currentUserId);
             _db.Notifications.Add(new Notification
             {
                 ReceiverId = senderId,
-                SenderId = currentUserId,
+                SenderId = currentUserId,                
                 Message = $"User {receiver!.UserName} accepted your friend request",
                 CreatedAt = DateTime.Now,
                 IsRead = false,
@@ -125,14 +126,15 @@ namespace MajorDecision.Data.Services.Implementation
             }
 
             await _db.SaveChangesAsync();
-            return true;
+            return new(true, friendship.Sender.UserName);
         }
 
-        public async Task<bool> DeclineAsync(string currentUserId, string senderId)
+        public async Task<(bool Success, string Message)> DeclineAsync(string currentUserId, string senderId)
         {
-            var friendship = await _db.Friends.FirstOrDefaultAsync(f => f.SenderId == senderId && f.ReceiverId == currentUserId && f.Statuses == Status.Pending);
+            var friendship = await _db.Friends.Include(f => f.Sender)
+                .FirstOrDefaultAsync(f => f.SenderId == senderId && f.ReceiverId == currentUserId && f.Statuses == Status.Pending);
             if (friendship == null)
-                return false;
+                return new(false, "No request");
 
             friendship.Statuses = Status.Rejected;
 
@@ -141,7 +143,7 @@ namespace MajorDecision.Data.Services.Implementation
                 _db.Notifications.Remove(requestNotification);
 
             await _db.SaveChangesAsync();
-                return true;
+            return new(true, friendship.Sender.UserName);
         }
 
         public async Task<List<ApplicationUser>> GetFriendsAsync(string userId)

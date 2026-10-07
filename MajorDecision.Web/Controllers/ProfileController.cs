@@ -1,9 +1,11 @@
-﻿using MajorDecision.Data.Services.Abstract;
+﻿using MajorDecision.Data.Dto;
+using MajorDecision.Data.Services.Abstract;
 using MajorDecision.Web.Data;
 using MajorDecision.Web.Models;
 using MajorDecision.Web.Models.Entities;
 using MajorDecision.Web.Models.ViewModels;
 using MajorDecision.Web.Models.ViewModels.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -58,10 +60,10 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> UploadOrDeleteImage(UserViewModel model)
+        public async Task<IActionResult> UploadOrDeleteImage(IFormFile photo = null)
         {
             var currentUserId = await CurrentUserIdAsync();
-            var (success, message) = await _profileService.UploadOrDeleteImageAsync(currentUserId, model.Photo, _hostingEnvironment.WebRootPath);
+            var (success, message) = await _profileService.UploadOrDeleteImageAsync(currentUserId, photo/*, _hostingEnvironment.WebRootPath*/);
             TempData["msg"] = message;
             return RedirectToAction("ManageProfile");
         }
@@ -73,18 +75,43 @@ namespace MajorDecision.Web.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditUser(UserViewModel model)
+        public async Task<IActionResult> EditUser(EditProfileRequest request)
         {
             var currentUserId = await CurrentUserIdAsync();
-            var (success, message) = await _profileService.UpdateProfileAsync(currentUserId, model);
+            var (success, message) = await _profileService.UpdateProfileAsync(currentUserId, request);
             TempData["msg"] = message;
             return RedirectToAction("ManageProfile");
+        }
+
+        [Authorize, HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [Authorize, HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePassword model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+            var currentUserId = await CurrentUserIdAsync();
+            var result = await _authService.ChangePasswordAsync(model, currentUserId);
+            if (result.StatusCode == 1)
+            {
+                TempData["msg"] = result.Message;
+                return RedirectToAction("ManageProfile", "Profile");
+            }
+            else
+            {
+                TempData["msg"] = result.Message;
+                return RedirectToAction(nameof(ChangePassword));
+            }
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAccount(string confirm)
         {            
-            if (confirm != "Delete")
+            if (confirm.ToLower() != "delete")
             {
                 TempData["msg"] = "Error";
                 return RedirectToAction("ManageProfile");
@@ -115,7 +142,7 @@ namespace MajorDecision.Web.Controllers
         public async Task<IActionResult> AcceptRequestToFriend(string senderId)
         {
             var currentUserId = await CurrentUserIdAsync();
-            var check = await _friendshipService.AcceptAsync(currentUserId, senderId);
+            var (check, message) = await _friendshipService.AcceptAsync(currentUserId, senderId);
             if (check != true)
             {
                 TempData["AlertMessage"] = "Error"; 
@@ -127,7 +154,7 @@ namespace MajorDecision.Web.Controllers
         public async Task<IActionResult> DeclineRequestToFriend(string senderId)
         {
             var currentUserId = await CurrentUserIdAsync();
-            var check = await _friendshipService.DeclineAsync(currentUserId, senderId);
+            var (check, message) = await _friendshipService.DeclineAsync(currentUserId, senderId);
             if (check != true)
             {
                 TempData["AlertMessage"] = "Error";

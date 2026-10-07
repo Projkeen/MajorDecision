@@ -2,6 +2,7 @@
 using MajorDecision.Data.Services.Abstract;
 using MajorDecision.Web.Models.Entities;
 using MajorDecision.Web.Models.ViewModels.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -30,9 +31,9 @@ namespace MajorDecision.Api.Controllers
 
             var (status, user, roles) = await _authService.RegistrationAsync(model);
             if (status.StatusCode == 0 || user == null)
-                return BadRequest(new { status.StatusCode, status.Message });            
+                return BadRequest(new { status.StatusCode, status.Message });
             //var roles = await _userManager.GetRolesAsync(user);
-            var token = _tokenService.CreateToken(user, roles);           
+            var token = _tokenService.CreateToken(user, roles);
 
             return Ok(new
             {
@@ -53,7 +54,7 @@ namespace MajorDecision.Api.Controllers
                 return BadRequest(ModelState);
             var (status, user, roles) = await _authService.LoginAsync(model);
             if (status.StatusCode == 0 || user == null)
-                return BadRequest(new { status.StatusCode, status.Message });            
+                return BadRequest(new { status.StatusCode, status.Message });
             //var roles = await _userManager.GetRolesAsync(user);
             //var role = await _authService.GetRoleAsync(user.UserName);
             var token = _tokenService.CreateToken(user, roles);
@@ -67,6 +68,6 @@ namespace MajorDecision.Api.Controllers
                 },
                 Status = new { status.StatusCode, status.Message }
             });
-        }
+        }        
     }
 }
