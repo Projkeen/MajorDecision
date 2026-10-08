@@ -1,7 +1,8 @@
 ﻿@using System.Security.Claims
+@using MajorDecision.Data.Dto
 @using MajorDecision.Web.Models.Entities
 @using Microsoft.AspNetCore.Identity
-@model List<DiscussionPage>
+@model List<DiscussionPageVM>
 @inject UserManager<ApplicationUser> userManager
 
 @{
@@ -25,24 +26,24 @@
         {
             var user = await userManager.GetUserAsync(User);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            if (currentUserId == mod.ApplicationUserId | User.IsInRole("Admin"))
+            if (currentUserId == mod.ApplicationUserId || User.IsInRole("Admin"))
             {
                 <div class="row">
                     <div class="col-sm">
-                        @if (string.IsNullOrEmpty(mod.ApplicationUser.ProfilePicture))
+                        @if (string.IsNullOrEmpty(mod.AuthorProfilePicture))
                         {
                             <img src="~/images/NoImage.png" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                         }
                         else
                         {
-                            <img src="~/images/profileImages/@mod.ApplicationUser.ProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
+                            <img src="~/images/profileImages/@mod.AuthorProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                         }
                     </div>
                     <div class="col-sm">
                         <h3>Question: @mod.Question</h3>
                         <h3>Answer: @mod.Answer</h3>                        
                         <h4><a type="button" asp-controller="DiscussionPage" asp-action="Discussion" asp-route-id="@mod.Id">Let's Discuss</a></h4>
-                        <div>Posted by: @mod.ApplicationUser.UserName - @mod.DateOfCreating</div>                        
+                        <div>Posted by: @mod.Author - @mod.DateOfCreating</div>                        
                     </div>
                     <div class="col-sm text-end">
                         @* <a class="btn btn-danger" asp-controller="DiscussionPage" asp-action="DeletePage" asp-route-id="@mod.Id" onclick="return confirm('⚠ Are you sure?')">X</a> *@
@@ -60,20 +61,20 @@
             {
                 <div class="row">
                     <div class="col-sm">
-                        @if (string.IsNullOrEmpty(mod.ApplicationUser.ProfilePicture))
+                        @if (string.IsNullOrEmpty(mod.AuthorProfilePicture))
                         {
                             <img src="~/images/NoImage.png" style="max-width: 100px; max-height: 100px; border-radius: 50%;" />
                         }
                         else
                         {
-                            <img src="~/images/profileImages/@mod.ApplicationUser.ProfilePicture" style="max-width: 100px; max-height: 100px; border-radius: 50%;" />
+                            <img src="~/images/profileImages/@mod.AuthorProfilePicture" style="max-width: 100px; max-height: 100px; border-radius: 50%;" />
                         }
                     </div>
                     <div class="col-sm">
                         <h3>Question: @mod.Question</h3>
                         <h3>Answer: @mod.Answer</h3>
                         <h4><a type="button" asp-controller="DiscussionPage" asp-action="Discussion" asp-route-id="@mod.Id">Let's Discuss</a></h4>
-                        <div>Posted by: @mod.ApplicationUser.UserName - @mod.DateOfCreating</div>                        
+                        <div>Posted by: @mod.Author - @mod.DateOfCreating</div>                        
                     </div>
                     <div class="col-sm">
                         <div></div>

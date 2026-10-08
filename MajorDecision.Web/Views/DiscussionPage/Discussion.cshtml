@@ -1,7 +1,8 @@
 ﻿@using System.Security.Claims
+@using MajorDecision.Data.Dto
 @using MajorDecision.Web.Models.Entities
 @using Microsoft.AspNetCore.Identity
-@model DiscussionPage
+@model DiscussionPageVM
 @inject UserManager<ApplicationUser> userManager
 
 @{
@@ -34,20 +35,20 @@
         {
             <div class="row">
                 <div class="col-sm">
-                    @if (string.IsNullOrEmpty(Model.ApplicationUser.ProfilePicture))
+                    @if (string.IsNullOrEmpty(Model.AuthorProfilePicture))
                     {
                         <img src="~/images/NoImage.png" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                     }
                     else
                     {
-                        <img src="~/images/profileImages/@Model.ApplicationUser.ProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
+                        <img src="~/images/profileImages/@Model.AuthorProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                     }
                 </div>
                 <div class="col-sm">
                     <h3>Answer: @Model.Answer</h3>
                     <h3>Description: @Model.Description</h3>
                     <h4><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addDescription">Add description</button></h4>
-                    <div>Posted by: @Model.ApplicationUser</div>
+                    <div>Posted by: @Model.Author</div>
                 </div>
                 <div class="col-sm text-end">
                    @*  <a class="btn btn-danger" asp-controller="DiscussionPage" asp-action="DeletePage" asp-route-id="@Model.Id" onclick="return confirm('⚠ Are you sure?')">X</a> *@
@@ -68,20 +69,20 @@
         {
             <div class="row">
                 <div class="col-sm">
-                    @if (string.IsNullOrEmpty(Model.ApplicationUser.ProfilePicture))
+                    @if (string.IsNullOrEmpty(Model.AuthorProfilePicture))
                     {
                         <img src="~/images/NoImage.png" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                     }
                     else
                     {
-                        <img src="~/images/profileImages/@Model.ApplicationUser.ProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
+                        <img src="~/images/profileImages/@Model.AuthorProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                     }
                 </div>
                 <div class="col-sm">
                     <h3>Answer: @Model.Answer</h3>
                     <h3>Description: @Model.Description</h3>
                     <h4><a class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addComment">Add comment</a></h4>
-                    <div>Posted by: @Model.ApplicationUser</div>
+                    <div>Posted by: @Model.Author</div>
                 </div>
                 <div class="col-sm text-end">
                     @if (User.IsInRole("Admin"))
@@ -105,17 +106,17 @@
         <div style="background-color:grey; margin-top:10px; margin-bottom:0px; padding:10px; border-radius: 10px; width: 100%;">
             <div class="row">
                 <div class="col-sm">
-                    @if (string.IsNullOrEmpty(comment.ApplicationUser.ProfilePicture))
+                    @if (string.IsNullOrEmpty(comment.AuthorProfilePicture))
                     {
                         <img src="~/images/NoImage.png" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                     }
                     else
                     {
-                        <img src="~/images/profileImages/@comment.ApplicationUser.ProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
+                        <img src="~/images/profileImages/@comment.AuthorProfilePicture" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
                     }
                 </div>
                 <div class="col-sm">
-                    <h4>@comment.ApplicationUser.UserName</h4>
+                    <h4>@comment.Author</h4>
                     <h5>@comment.Text</h5>
                 </div>
                 <div class="col-sm text-end">
@@ -186,7 +187,7 @@
                     <h6>Add comment</h6>
                     <textarea class="form-control" style="width:475px; vertical-align:top;" aria-label="With textarea" name="Text"></textarea>
                     <input type="hidden" name="ApplicationUserId" class="form-control" value="@userManager.GetUserId(User)" />
-                    <input type="hidden" name="DiscussionPageId" class="form-control" value="@Model.Id" />
+                    <input type="hidden" name="PageId" class="form-control" value="@Model.Id" />
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">Add Comment</button>

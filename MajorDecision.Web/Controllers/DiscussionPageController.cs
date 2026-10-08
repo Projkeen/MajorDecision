@@ -25,8 +25,8 @@ namespace MajorDecision.Web.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                var pages = _pageService.GetPages();
-                return View(await pages.ToListAsync());
+                var pages = await _pageService.GetPagesAsync();
+                return View(pages);
             }
             else
             {
@@ -59,23 +59,28 @@ namespace MajorDecision.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Discussion(int id)
         {
-            var page = await _pageService.GetById(id);
+            var page = await _pageService.GetByIdAsync(id);
             return View(page);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> AddDescription(int Id, string description)
         {
-            await _pageService.AddDescriptionAsync(Id, description);
-            return RedirectToAction(nameof(Discussion), new { id = Id });
+            var currentUser = await _userManager.GetUserAsync(User);
+            var(success, message) = await _pageService.AddDescriptionAsync(Id, description, currentUser.Id);
+            if(!success)
+                TempData["msg"] = message;
+            return RedirectToAction(nameof(Discussion), new { id = Id, M = TempData["msg"] = message });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddComment(Comment comment)
+        public async Task<IActionResult> AddComment(int PageId, string text)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            await _pageService.AddCommentAsync(comment.Text, comment.DiscussionPageId, currentUser!.Id);
-            return RedirectToAction(nameof(Discussion), new { id = comment.DiscussionPageId });
+            var (success, message) = await _pageService.AddCommentAsync(text, PageId, currentUser!.Id);
+            if (!success)
+                TempData["msg"] = message;
+            return RedirectToAction(nameof(Discussion), new { id = PageId, M = TempData["msg"] = message });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -88,7 +93,7 @@ namespace MajorDecision.Web.Controllers
             if (pageId == null)
                 return RedirectToAction(nameof(DisplayPages));
 
-            return RedirectToAction(nameof(Discussion), new { id = pageId });
+            return RedirectToAction(nameof(Discussion), new { id = pageId, M = TempData["msg"] = message });
         }
     }
 }
